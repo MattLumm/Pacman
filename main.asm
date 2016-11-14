@@ -1,7 +1,7 @@
 TITLE andy		(arrayweek.asm)
 INCLUDE Irvine32.inc
 .data
-; board is 31X28; err now 31X56 i think didn't count
+; board is 31X28; err now 31X56 
 winning byte 0
 line1 db "#######################################################",0
 line2 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
@@ -110,14 +110,70 @@ main PROC
 	call drawstart
 	call spawnpac
 	call drawstart
+	call movpacup
+	call drawstart
 	call movpacright
 	call drawstart
 	call movpacup
 	call drawstart
 	call movpacleft
 	call drawstart
+	call movpacright
+	call drawstart
 	call movpacdown
 	call drawstart
+	call movpacdown
+	call drawstart
+	
+	call movpacright
+	call drawstart
+	call movpacright
+	call drawstart
+	call movpacright
+	call drawstart
+	call movpacdown
+	call drawstart
+	call movpacdown
+	call drawstart
+	call movpacdown
+	call drawstart
+	call movpacdown
+	call drawstart
+	call movpacright
+	call drawstart
+	call movpacright
+	call drawstart
+	call movpacright
+	call drawstart
+
+	call movpacright
+	call drawstart
+	call movpacright
+	call drawstart
+	call movpacright
+	call drawstart
+	call movpacright
+	call drawstart
+	call movpacright
+	call drawstart
+	call movpacright
+	call drawstart
+
+	call movpacright
+	call drawstart
+
+	call movpacright
+	call drawstart
+	call movpacright
+	call drawstart
+	
+	call movpacleft
+	call drawstart
+	call movpacleft
+	call drawstart
+	call movpacleft
+	call drawstart
+
 
 mainloop:
 	call drawdots
@@ -125,7 +181,7 @@ mainloop:
 	call updatedots
 	call input
 	cmp winning, 0
-	je mainloop
+;	je mainloop
 exit
 main ENDP
 
@@ -268,6 +324,32 @@ spawnpac endp
 movpacright proc USES esi eax
 ; need to check if the next spot is open or not
 ; set pacDir = 0 to rep pac heading right, replace pacX, pacY with _ to represent pellet eaten, then inc pacX, move pac to pacX, pacY 
+	
+;checks for teleport	
+	call setline
+	cmp pacX, 54
+	je teleport
+	jmp check
+teleport:
+	add esi, pacX
+	mov al, '_'
+	mov [esi], al
+	mov pacX, 0
+	call setline
+	add esi, pacX
+	mov al, '<'
+	mov [esi], al
+	jmp collision
+check:
+;checks for collision
+	call setline
+	add esi, pacX
+	inc esi
+	inc esi
+	mov ah, [esi]
+	cmp ah, '#'
+	je collision
+	
 	mov pacDir, 0
 	Call setline
 	add esi, pacX
@@ -279,12 +361,39 @@ movpacright proc USES esi eax
 	inc pacX
 	mov al, '<'
 	mov [esi], al
+collision:
 ret
 movpacright endp
 
 movpacleft proc USES esi eax
 ; need to check if the next spot is open or not
 ; set pacDir = 1 to rep pac heading left, replace pacX, pacY with _ to represent pellet eaten, then dec pacX, move pac to pacX, pacY 
+
+;checks for teleport	
+	call setline
+	cmp pacX, 0
+	je teleport
+	jmp check
+teleport:
+	add esi, pacX
+	mov al, '_'
+	mov [esi], al
+	mov pacX, 54
+	call setline
+	add esi, pacX
+	mov al, '>'
+	mov [esi], al
+	jmp collision
+check:
+;checks for collision
+	call setline
+	add esi, pacX
+	dec esi
+	dec esi
+	mov ah, [esi]
+	cmp ah, '#'
+	je collision
+;moves pacman normally
 	mov pacDir, 1
 	Call setline
 	add esi, pacX
@@ -294,14 +403,23 @@ movpacleft proc USES esi eax
 	dec esi
 	dec pacX
 	dec pacX
-	mov al, '<'
+	mov al, '>'
 	mov [esi], al
+collision:
 ret
 movpacleft endp
 
 movpacup proc USES esi eax
 ; need to check if the next spot is open still
-; set pacDir = 2 to rep pac heading up, replace pacX, pacY with _, then dec pacY, mov pac to pacX, pacY
+; set pacDir = 2 to rep pac heading up, replace pacX, pacY with _, then dec pacY, mov pac to pacX, pacY	
+	dec pacY
+	call setline
+	inc pacY
+	add esi, pacX
+	mov ah, [esi]
+	cmp ah, '#'
+	je collision	
+	
 	mov pacDir, 2
 	Call setline
 	add esi, pacX
@@ -312,12 +430,21 @@ movpacup proc USES esi eax
 	add esi, pacX
 	mov al, '^'
 	mov [esi], al
+collision:
 ret
 movpacup endp
 
 movpacdown proc USES esi eax
 ; need to check if the next spot is open still
 ; set pacDir = 4 to rep pac heading down, replace pacX, pacY with _, then inc pacY, mov pac to pacX, pacY
+	inc pacY
+	call setline
+	dec pacY
+	add esi, pacX
+	mov ah, [esi]
+	cmp ah, '#'
+	je collision	
+	
 	mov pacDir, 3
 	Call setline
 	add esi, pacX
@@ -328,6 +455,7 @@ movpacdown proc USES esi eax
 	add esi, pacX
 	mov al, 'v'
 	mov [esi], al
+collision:
 ret
 movpacdown endp
 
