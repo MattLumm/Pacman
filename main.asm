@@ -2,41 +2,41 @@ TITLE andy		(arrayweek.asm)
 INCLUDE Irvine32.inc
 .data
 winning byte 0
-line1 db "############################",0
-line2 db "#oooooooooooo##oooooooooooo#",0
-line3 db "#o####o#####o##o#####o####o#",0
-line4 db "#o####o#####o##o#####o####o#",0
-line5 db "#o####o#####o##o#####o####o#",0
-line6 db "#oooooooooooooooooooooooooo#",0
-line7 db "#o####o##o########o##o####o#",0
-line8 db "#o####o##o########o##o####o#",0
-line9 db "#oooooo##oooo##oooo##oooooo#",0
-lineA db "######o#####o##o#####o######",0
-lineB db "######o#####o##o#####o######",0
-lineC db "######o##oooooooooo##o######",0
-lineD db "######o##o###__###o##o######",0
-lineE db "######o##o#______#o##o######",0
-lineF db "______oooo#______#oooo______",0
-line10 db "######o##o#______#o##o######",0
-line11 db "######o##o########o##o######",0
-line12 db "######o##oooooooooo##o######",0
-line13 db "######o##o########o##o######",0
-line14 db "######o##o########o##o######",0
-line15 db "#oooooooooooo##oooooooooooo#",0
-line16 db "#o####o#####o##o#####o####o#",0
-line17 db "#o####o#####o##o#####o####o#",0
-line18 db "#ooo##oooooooooooooooo##ooo#",0
-line19 db "###o##o##o########o##o##o###",0
-line1A db "###o##o##o########o##o##o###",0
-line1B db "#oooooo##oooo##oooo##oooooo#",0
-line1C db "#o##########o##o##########o#",0
-line1D db "#o##########o##o##########o#",0
-line1E db "#oooooooooooooooooooooooooo#",0
-line1F db "############################",0
+line1 db "#######################################################",0
+line2 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
+line3 db "# o ####### o ######### o ### o ######### o ####### o #",0
+line4 db "# 0 #     # o #       # o ### o #       # o #     # 0 #",0
+line5 db "# o ####### o ######### o ### o ######### o ####### o #",0
+line6 db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
+line7 db "# o # # # # o # # o ############### o ### o ####### o #",0
+line8 db "# o # # # # o # # o ############### o ### o ####### o #",0
+line9 db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
+lineA db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
+lineB db "########### o # # # # # o ### o # # # ### o ###########",0
+lineC db "#         # o # # o o o o o o o o o o # # o #         #",0
+lineD db "#         # o # # o #####     ##### o ### o #         #",0
+lineE db "#         # o # # o #             # o ### o #         #",0
+lineF db "########### o # # o #             # o ### o ###########",0
+line10 db "            o o o o #             # o o o o            ",0
+line11 db "########### o # # o ############### o ### o ###########",0
+line12 db "#         # o # # o o o o o o o o o o ### o #         #",0
+line13 db "#         # o # # o # # # # # # # # o ### o #         #",0
+line14 db "########### o # # o # # # # # # # # o ### o ###########",0
+line15 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
+line16 db "# o ####### o ######### o ### o ######### o ####### o #",0
+line17 db "# o ####### o ######### o ### o ######### o ####### o #",0
+line18 db "# 0 o o ### o o o o o o o o o o o o o o o o ### o o 0 #",0
+line19 db "##### o ### o ### o ############### o ### o ### o #####",0
+line1A db "##### o ### o ### o ############### o ### o ### o #####",0
+line1B db "# o o o o o o ### o o o o ### o o o o ### o o o o o o #",0
+line1C db "# o ################### o ### o ################### o #",0
+line1D db "# o ################### o ### o ################### o #",0
+line1E db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
+line1F db "#######################################################",0
 .code
 main PROC
-	mainloop:
 	call drawstart
+	mainloop:
 	call drawdots
 	call drawpac
 	call updatedots
