@@ -32,26 +32,9 @@ line1C db "#o##########o##o##########o#",0
 line1D db "#o##########o##o##########o#",0
 line1E db "#oooooooooooooooooooooooooo#",0
 line1F db "############################",0
-
-authormsg db "Created By: Matt Lum, Khadija Panirwala, Khalil Sheehan-Miles, Andy Tenhagen", 0
-title1 db  "_______  _______  _______  __   __  _______  __    _", 0
-title2 db "|       ||   _   ||       ||  |_|  ||   _   ||  |  | |", 0
-title3 db "|    _  ||  |_|  ||       ||       ||  |_|  ||   |_| |", 0
-title4 db "|   |_| ||       ||       ||       ||       ||       |", 0
-title5 db "|    ___||       ||      _||       ||       ||  _    |", 0
-title6 db "|   |    |   _   ||     |_ | ||_|| ||   _   || | |   |", 0
-title7 db "|___|    |__| |__||_______||_|   |_||__| |__||_|  |__|", 0
-instructions1 db "Use the A, S, D, and W keys to move Pacman", 0
-instructions2 db "A is left, S is down, D is right, W is up ", 0
-instructions3 db "Press space bar to start", 0
-goodluckmsg db "GOOD LUCK", 0
-
-
-
 .code
 main PROC
 call drawstart
-call buildSplashScreen
 exit
 main ENDP
 
@@ -151,48 +134,4 @@ call writestring
 call crlf
 ret
 Drawstart endp
-
-buildSplashScreen proc
-mov edx, offset authormsg
-call writestring
-call crlf
-mov edx, offset title1
-call writestring
-call crlf
-mov edx, offset title2
-call writestring
-call crlf
-mov edx, offset title3
-call writestring
-call crlf
-mov edx, offset title4
-call writestring
-call crlf
-mov edx, offset title5
-call writestring
-call crlf
-mov edx, offset title6
-call writestring
-call crlf
-mov edx, offset title7
-call writestring
-call crlf
-mov edx, offset instructions1
-call writestring
-call crlf
-mov edx, offset instructions2
-call writestring
-call crlf
-mov edx, offset instructions3
-call writestring
-call crlf
-mov edx, offset goodluckmsg
-call writestring
-call crlf
-ret
-buildSplashScreen ENDP
-
-
-
-
 END main
