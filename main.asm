@@ -3,6 +3,7 @@ INCLUDE Irvine32.inc
 .data
 ; board is 31X28; err now 31X56 
 winning byte 0
+score byte 0
 line1 db "#######################################################",0
 line2 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
 line3 db "# o ####### o ######### o ### o ######### o ####### o #",0
@@ -332,6 +333,7 @@ movpacright proc USES esi eax
 	jmp check
 teleport:
 	add esi, pacX
+	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
 	mov al, '_'
 	mov [esi], al
 	mov pacX, 0
@@ -346,6 +348,7 @@ check:
 	add esi, pacX
 	inc esi
 	inc esi
+	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision
@@ -376,6 +379,7 @@ movpacleft proc USES esi eax
 	jmp check
 teleport:
 	add esi, pacX
+	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
 	mov al, '_'
 	mov [esi], al
 	mov pacX, 54
@@ -390,6 +394,7 @@ check:
 	add esi, pacX
 	dec esi
 	dec esi
+	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision
@@ -409,6 +414,25 @@ collision:
 ret
 movpacleft endp
 
+checkdot proc USES eax
+	;checks to see if there is a dot
+	;if there is a dot, inc score
+	;if there is a big dot, add 5 to score
+	mov ah, [esi]
+	cmp ah, 'o'
+	je islittledot
+	cmp ah, '0'
+	je isbigdot
+	jmp end
+	islittledot:
+	inc score
+	jmp end
+	isibigdot:
+	add score, 5
+	end:
+	ret
+checkdot endp
+
 movpacup proc USES esi eax
 ; need to check if the next spot is open still
 ; set pacDir = 2 to rep pac heading up, replace pacX, pacY with _, then dec pacY, mov pac to pacX, pacY	
@@ -416,6 +440,7 @@ movpacup proc USES esi eax
 	call setline
 	inc pacY
 	add esi, pacX
+	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision	
@@ -441,6 +466,7 @@ movpacdown proc USES esi eax
 	call setline
 	dec pacY
 	add esi, pacX
+	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision	
