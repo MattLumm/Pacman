@@ -107,8 +107,68 @@ EntrySize = ($ - CaseTable)
 NumberOfEntries = ($-CaseTable) / EntrySize
 
 temptest db ?
+
+title1 db " ########     ###     ######                ##     ##    ###    ##    ##",0
+title2 db " ##     ##   ## ##   ##    ##               ###   ###   ## ##   ###   ##",0
+title3 db " ##     ##  ##   ##  ##                     #### ####  ##   ##  ####  ##",0	
+title4 db " ########  ##     ## ##          #######    ## ### ## ##     ## ## ## ##",0
+title5 db " ##        ######### ##                     ##     ## ######### ##  ####",0	
+title6 db " ##        ##     ## ##    ##               ##     ## ##     ## ##   ###",0
+title7 db " ##        ##     ##  ######                ##     ## ##     ## ##    ##",0
+
+endmsg1 db " ######      ###    ##     ## ########     #######  ##     ## ######## ########", 0
+endmsg2 db "##    ##    ## ##   ###   ### ##          ##     ## ##     ## ##       ##     ##",0
+endmsg3 db "##         ##   ##  #### #### ##          ##     ## ##     ## ##       ##     ##", 0
+endmsg4 db "##   #### ##     ## ## ### ## ######      ##     ## ##     ## ######   ########", 0
+endmsg5 db "##    ##  ######### ##     ## ##          ##     ##  ##   ##  ##       ##   ##", 0
+endmsg6 db "##    ##  ##     ## ##     ## ##          ##     ##   ## ##   ##       ##    ##", 0
+endmsg7 db " ######   ##     ## ##     ## ########     #######     ###    ######## ##     ##", 0
+
+winmsg1 db "__     ______  _    _  __          _______ _   _   _ ", 0
+winmsg2 db "\ \   / / __ \| |  | | \ \        / /_   _| \ | | | |", 0
+winmsg3 db " \ \_/ / |  | | |  | |  \ \  /\  / /  | | |  \| | | |", 0
+winmsg4 db "  \   /| |  | | |  | |   \ \/  \/ /   | | | . ` | | |", 0
+winmsg5 db "   | | | |__| | |__| |    \  /\  /   _| |_| |\  | |_|", 0
+winmsg6 db "   |_|  \____/ \____/      \/  \/   |_____|_| \_| (_)", 0
+
+ghosts1a db " ###", 0
+ghosts1b db "#0#0#", 0
+ghosts1c db "#####", 0
+ghosts1d db "# # #", 0
+ghosts1e db "Andy", 0
+
+ghosts2a db " ###", 0
+ghosts2b db "#0#0#", 0
+ghosts2c db "#####", 0
+ghosts2d db "# # #", 0
+ghosts2e db "Khadija", 0
+
+ghosts3a db " ###", 0
+ghosts3b db "#0#0#", 0
+ghosts3c db "#####", 0
+ghosts3d db "# # #", 0
+ghosts3e db "Khalil", 0
+
+ghosts4a db " ###", 0
+ghosts4b db "#0#0#", 0
+ghosts4c db "#####", 0
+ghosts4d db "# # #", 0
+ghosts4e db "Matt", 0
+
+instructions1 db "Use the A, S, D, and W keys to move Pacman",0
+instructions2 db "A is left, S is down, D is right, W is up",0
+instructions3 db "Press space bar to start",0
+goodluckmsg db "GOOD LUCK",0
+
 .code
 main PROC
+	call buildSplashScreen
+	call readchar
+	cmp al, 20h
+	je startGame
+	jmp youWin
+	startGame:
+	call clrscr
 	mov eax, 0
 	mov ebx, 0
 	call spawnpac
@@ -138,7 +198,10 @@ main PROC
 	call movpacleft
 	call movpacleft
 
-
+youWin:
+call clrscr
+call buildYouWin
+call updateScore
 
 mainloop:
 	call drawdots
@@ -718,6 +781,362 @@ printgotoxy proc USES edx ebx
 
 ret
 printgotoxy endp
+
+buildYouWin proc
+
+	mov dh, 17
+	mov dl, 35
+	call gotoxy
+	mov edx, offset winmsg1
+	call writestring
+	call slowdown
+
+	mov dh, 18
+	mov dl, 35
+	call gotoxy
+	mov edx, offset winmsg2
+	call writestring
+	call slowdown
+
+	mov dh, 19
+	mov dl, 35
+	call gotoxy
+	mov edx, offset winmsg3
+	call writestring
+	call slowdown
+
+	mov dh, 20
+	mov dl, 35
+	call gotoxy
+	mov edx, offset winmsg4
+	call writestring
+	call slowdown
+
+	mov dh, 21
+	mov dl, 35
+	call gotoxy
+	mov edx, offset winmsg5
+	call writestring
+	call slowdown
+
+	mov dh, 22
+	mov dl, 35
+	call gotoxy
+	mov edx, offset winmsg6
+	call writestring
+	call slowdown
+
+
+ret
+buildYouWin endp
+
+buildGameOver proc
+
+	mov dh, 17
+	mov dl, 35
+	call gotoxy
+	mov edx, offset endmsg1
+	call writestring
+	call slowdown
+
+	mov dh, 18
+	mov dl, 35
+	call gotoxy
+	mov edx, offset endmsg2
+	call writestring
+	call slowdown
+
+	mov dh, 19
+	mov dl, 35
+	call gotoxy
+	mov edx, offset endmsg3
+	call writestring
+	call slowdown
+
+	mov dh, 20
+	mov dl, 35
+	call gotoxy
+	mov edx, offset endmsg4
+	call writestring
+	call slowdown
+
+	mov dh, 21
+	mov dl, 35
+	call gotoxy
+	mov edx, offset endmsg5
+	call writestring
+	call slowdown
+
+	mov dh, 22
+	mov dl, 35
+	call gotoxy
+	mov edx, offset endmsg6
+	call writestring
+	call slowdown
+
+	mov dh, 23
+	mov dl, 35
+	call gotoxy
+	mov edx, offset endmsg7
+	call writestring
+	call slowdown
+
+	ret
+buildGameOver endp
+
+buildSplashScreen proc
+
+	mov eax, 14
+	call settextcolor
+
+	mov dh, 17
+	mov dl, 35
+	call gotoxy
+	mov edx, offset title1
+	call writestring
+	call slowdown
+	mov dh, 18
+	mov dl, 35
+	call gotoxy
+	mov edx, offset title2
+	call writestring
+	call slowdown
+	mov dh, 19
+	mov dl, 35
+	call gotoxy
+	mov edx, offset title3
+	call writestring
+	call slowdown
+	mov dh, 20
+	mov dl, 35
+	call gotoxy
+	mov edx, offset title4
+	call writestring
+	call slowdown
+	mov dh, 21
+	mov dl, 35
+	call gotoxy
+	mov edx, offset title5
+	call writestring
+	call slowdown
+	mov dh, 22
+	mov dl, 35
+	call gotoxy
+	mov edx, offset title6
+	call writestring
+	call slowdown
+	mov dh, 23
+	mov dl, 35
+	call gotoxy
+	mov edx, offset title7
+	call writestring
+	call slowdown
+	mov eax, 13
+	call settextcolor
+	mov dh, 25
+	mov dl, 50
+	call gotoxy
+	mov edx, offset instructions1
+	call writestring
+	call slowdown
+	mov dh, 26
+	mov dl, 52
+	call gotoxy
+	mov edx, offset instructions2
+	call writestring
+	call slowdown
+	mov dh, 27
+	mov dl, 58
+	call gotoxy
+	mov edx, offset instructions3
+	call writestring
+	call slowdown
+	mov eax, 15
+	call settextcolor
+	mov dh, 28
+	mov dl, 65
+	call gotoxy
+	mov edx, offset goodluckmsg
+	call writestring
+	call slowdown
+
+	mov eax, 14; yellow
+	call settextcolor
+	mov dh, 29
+	mov dl, 37
+	call gotoxy
+	mov edx, offset ghosts1a
+	call writestring
+	call crlf
+
+	call slowdown
+	mov dh, 30
+	mov dl, 37
+	call gotoxy
+	mov edx, offset ghosts1b
+	call writestring
+	call crlf
+	call slowdown
+	mov dh, 31
+	mov dl, 37
+	call gotoxy
+	mov edx, offset ghosts1c
+	call writestring
+	call crlf
+	call slowdown
+	mov dh, 32
+	mov dl, 37
+	call gotoxy
+	mov edx, offset ghosts1d
+	call writestring
+	call crlf
+
+	call slowdown
+
+	mov dh, 33
+	mov dl, 37
+	call gotoxy
+	mov edx, offset ghosts1e
+	call writestring
+	call crlf
+	call slowdown
+	mov eax, 13; light magenta
+	call settextcolor
+
+	mov dh, 29
+	mov dl, 57
+	call gotoxy
+	mov edx, offset ghosts2a
+	call writestring
+	call crlf
+	call slowdown
+	mov dh, 30
+	mov dl, 57
+	call gotoxy
+	mov edx, offset ghosts2b
+	call writestring
+	call crlf
+	call slowdown
+	mov dh, 31
+	mov dl, 57
+	call gotoxy
+	mov edx, offset ghosts2c
+	call writestring
+	call crlf
+	call slowdown
+	mov dh, 32
+	mov dl, 57
+	call gotoxy
+	mov edx, offset ghosts2d
+	call writestring
+	call crlf
+
+	call slowdown
+
+	mov dh, 33
+	mov dl, 57
+	call gotoxy
+	mov edx, offset ghosts2e
+	call writestring
+	call crlf
+	call slowdown
+	mov eax, 12;  light red
+	call settextcolor
+
+	mov dh, 29
+	mov dl, 77
+	call gotoxy
+	mov edx, offset ghosts3a
+	call writestring
+	call crlf
+	call slowdown
+	mov dh, 30
+	mov dl, 77
+	call gotoxy
+	mov edx, offset ghosts3b
+	call writestring
+	call crlf
+	call slowdown
+	mov dh, 31
+	mov dl, 77
+	call gotoxy
+	mov edx, offset ghosts3c
+	call writestring
+	call crlf
+	call slowdown
+	mov dh, 32
+	mov dl, 77
+	call gotoxy
+	mov edx, offset ghosts3d
+	call writestring
+	call crlf
+
+	call slowdown
+
+	mov dh, 33
+	mov dl, 77
+	call gotoxy
+	mov edx, offset ghosts3e
+	call writestring
+	call crlf
+
+	mov eax, 11 ; light cyan
+	call settextcolor
+	call slowdown
+	mov dh, 29
+	mov dl, 97
+	call gotoxy
+	mov edx, offset ghosts4a
+	call writestring
+	call crlf
+	call slowdown
+	mov dh, 30
+	mov dl, 97
+	call gotoxy
+	mov edx, offset ghosts4b
+	call writestring
+	call crlf
+
+	call slowdown
+
+	mov dh, 31
+	mov dl, 97
+	call gotoxy
+	mov edx, offset ghosts4c
+	call writestring
+	call crlf
+
+	call slowdown
+
+	mov dh, 32
+	mov dl, 97
+	call gotoxy
+	mov edx, offset ghosts4d
+	call writestring
+	call crlf
+	
+	call slowdown
+
+	mov dh, 33
+	mov dl, 97
+	call gotoxy
+	mov edx, offset ghosts4e
+	call writestring
+	call crlf
+
+	mov eax, 15
+	call settextcolor
+
+ret
+buildSplashScreen ENDP
+
+slowdown PROC
+	push eax
+	mov  eax, 100 ; 100 milliseconds
+	call delay
+	pop  eax
+	ret
+slowdown ENDP
 
 
 END main
