@@ -419,10 +419,12 @@ collision:
 ret
 movpacleft endp
 
+;---------
+;checks to see if there is a dot
+;if there is a dot, inc score
+;if there is a big dot, add 5 to score
+;----------
 checkdot proc USES eax
-	;checks to see if there is a dot
-	;if there is a dot, inc score
-	;if there is a big dot, add 5 to score
 	mov ah, [esi]
 	cmp ah, 'o'
 	je islittledot
@@ -435,6 +437,7 @@ checkdot proc USES eax
 	isbigdot:
 	add score, 5
 	nodot:
+	call updatescore
 	ret
 checkdot endp
 
@@ -666,6 +669,18 @@ Process_31 PROC
 	ret
 Process_31 ENDP
 
+;------
+;update score
+;updates the score that is shown on the screen
+;-------
+updatescore proc USES edx eax
+	mov edx, offset line20
+	call writestring
+	mov eax, 0
+	mov al, score
+	call writeint
+	ret
+updatescore endp
 ;---------------------
 ;printgotoxy
 ;moves the cursor to pacX and pacY then writes a char
@@ -678,6 +693,7 @@ printgotoxy proc USES edx ebx
 ;note to self use dl=pacX+1 dh=pacY+1
 ;gotoXY takes in dl:column(aka which column X), dh:row(aka which row Y)
 ;then call Gotoxy
+
 	mov ebx, 0
 	mov ebx, pacX
 	mov dl, bl
