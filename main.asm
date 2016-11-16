@@ -2,6 +2,8 @@ TITLE andy		(arrayweek.asm)
 INCLUDE Irvine32.inc
 .data
 ; board is 31X28; err now 31X56 
+;command console should be height=35(so gotoxy doesn't shift the console)
+;							 width 56+scoredboard and other stuff
 winning byte 0
 score byte 0
 line1 db "#######################################################",0
@@ -109,72 +111,33 @@ temptest db ?
 main PROC
 	mov eax, 0
 	mov ebx, 0
-	call drawstart
 	call spawnpac
 	call drawstart
-	call movpacup
-	call drawstart
-	call movpacright
-	call drawstart
-	call movpacup
-	call drawstart
-	call movpacleft
-	call drawstart
-	call movpacright
-	call drawstart
-	call movpacdown
-	call drawstart
-	call movpacdown
-	call drawstart
-	
-	call movpacright
-	call drawstart
-	call movpacright
-	call drawstart
-	call movpacright
-	call drawstart
-	call movpacdown
-	call drawstart
-	call movpacdown
-	call drawstart
-	call movpacdown
-	call drawstart
-	call movpacdown
-	call drawstart
-	call movpacright
-	call drawstart
-	call movpacright
-	call drawstart
-	call movpacright
-	call drawstart
+	Call movpacright
+	Call movpacright
+	Call movpacright
+	Call movpacright
+	Call movpacdown
+	Call movpacdown
+	Call movpacdown
+	Call movpacdown
+	Call movpacright
+	Call movpacright
+	Call movpacright
+	Call movpacright
+	Call movpacright
+	Call movpacright
+	Call movpacright
+	Call movpacright
+	Call movpacright
+	Call movpacright
+	Call movpacright
 
-	call movpacright
-	call drawstart
-	call movpacright
-	call drawstart
-	call movpacright
-	call drawstart
-	call movpacright
-	call drawstart
-	call movpacright
-	call drawstart
-	call movpacright
-	call drawstart
 
-	call movpacright
-	call drawstart
+	call movpacleft
+	call movpacleft
+	call movpacleft
 
-	call movpacright
-	call drawstart
-	call movpacright
-	call drawstart
-	
-	call movpacleft
-	call drawstart
-	call movpacleft
-	call drawstart
-	call movpacleft
-	call drawstart
 
 
 mainloop:
@@ -311,6 +274,13 @@ call crlf
 ret
 Drawstart endp
 
+;---------------------
+;spawnpac
+;sets up pacX and pacY at (28,12) also places pacman at that location
+;Needs line#, pacX, pacY
+;Returns pacX, pacY
+;Uses esi eax
+;---------------------
 spawnpac proc USES esi eax
 ; pac man uses <, >, ^, v  depending which direction he's heading starts heading right
 .data 
@@ -329,6 +299,16 @@ pacDir db 0
 	ret
 spawnpac endp
 
+;---------------------
+;movpacright
+;moves pacX up 2 and shifts the pacman icon 2 to the right in the line index. 
+;Also replaces where pacman was with'_'. 
+;Checks for collision with '#' in two spaces ahead and doesn't move if a wall does exist
+;Will wrap around the array if it move right from the 54 index will move to 0 index
+;Needs line#, pacX, pacY
+;Returns pacX, line#
+;Uses esi eax
+;---------------------
 movpacright proc USES esi eax
 ; need to check if the next spot is open or not
 ; set pacDir = 0 to rep pac heading right, replace pacX, pacY with _ to represent pellet eaten, then inc pacX, move pac to pacX, pacY 
@@ -343,11 +323,13 @@ teleport:
 	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
 	mov al, '_'
 	mov [esi], al
+	call printgotoxy
 	mov pacX, 0
 	call setline
 	add esi, pacX
 	mov al, '<'
 	mov [esi], al
+	call printgotoxy
 	jmp collision
 check:
 ;checks for collision
@@ -365,16 +347,28 @@ check:
 	add esi, pacX
 	mov al, '_'
 	mov [esi], al
+	call printgotoxy
 	inc esi
 	inc esi
 	inc pacX
 	inc pacX
 	mov al, '<'
 	mov [esi], al
+	call printgotoxy
 collision:
 ret
 movpacright endp
 
+;---------------------
+;movpacleft
+;moves pacX down 2 and shifts the pacman icon 2 to the right in the line index. 
+;Also replaces where pacman was with'_'. 
+;Checks for collision with '#' in two spaces ahead and doesn't move if a wall does exist
+;Will wrap around the array if pac moves left from the 0 index will move to 54 index
+;Needs line#, pacX, pacY
+;Returns pacX, line#
+;Uses esi eax
+;---------------------
 movpacleft proc USES esi eax
 ; need to check if the next spot is open or not
 ; set pacDir = 1 to rep pac heading left, replace pacX, pacY with _ to represent pellet eaten, then dec pacX, move pac to pacX, pacY 
@@ -389,11 +383,13 @@ teleport:
 	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
 	mov al, '_'
 	mov [esi], al
+	call printgotoxy
 	mov pacX, 54
 	call setline
 	add esi, pacX
 	mov al, '>'
 	mov [esi], al
+	call printgotoxy
 	jmp collision
 check:
 ;checks for collision
@@ -411,12 +407,14 @@ check:
 	add esi, pacX
 	mov al, '_'
 	mov [esi], al
+	call printgotoxy
 	dec esi
 	dec esi
 	dec pacX
 	dec pacX
 	mov al, '>'
 	mov [esi], al
+	call printgotoxy
 collision:
 ret
 movpacleft endp
@@ -440,6 +438,15 @@ checkdot proc USES eax
 	ret
 checkdot endp
 
+;---------------------
+;movpacup
+;moves pacY up 1 and shifts the pacman icon 1 up in lines
+;Also replaces where pacman was with'_'. 
+;Checks for collision with '#' in two spaces ahead and doesn't move if a wall does exist
+;Needs line#, pacX, pacY
+;Returns pacY, line#
+;Uses esi eax
+;---------------------
 movpacup proc USES esi eax
 ; need to check if the next spot is open still
 ; set pacDir = 2 to rep pac heading up, replace pacX, pacY with _, then dec pacY, mov pac to pacX, pacY	
@@ -457,15 +464,26 @@ movpacup proc USES esi eax
 	add esi, pacX
 	mov al,'_'
 	mov [esi], al
+	call printgotoxy
 	dec pacY
 	Call setline
 	add esi, pacX
-	mov al, '^'
+	mov al, 'v'
 	mov [esi], al
+	call printgotoxy
 collision:
 ret
 movpacup endp
 
+;---------------------
+;movpacdown
+;moves pacY down 1 and shifts the pacman icon 1 down in lines
+;Also replaces where pacman was with'_'. 
+;Checks for collision with '#' in two spaces ahead and doesn't move if a wall does exist
+;Needs line#, pacX, pacY
+;Returns pacY, line#
+;Uses esi eax
+;---------------------
 movpacdown proc USES esi eax
 ; need to check if the next spot is open still
 ; set pacDir = 4 to rep pac heading down, replace pacX, pacY with _, then inc pacY, mov pac to pacX, pacY
@@ -483,16 +501,24 @@ movpacdown proc USES esi eax
 	add esi, pacX
 	mov al,'_'
 	mov [esi], al
+	call printgotoxy
 	inc pacY
 	Call setline
 	add esi, pacX
-	mov al, 'v'
+	mov al, '^'
 	mov [esi], al
+	call printgotoxy
 collision:
 ret
 movpacdown endp
 
+;---------------------
+;setline
 ;used to set the esi to the line of PacY
+;Needs line#, pacY
+;Returns esi 
+;Uses esi eax
+;---------------------
 setline proc
 ;call readchar	;read char to AL
 	mov al, PacY				; so you have the right column get selected
@@ -640,6 +666,39 @@ Process_31 PROC
 	ret
 Process_31 ENDP
 
+;---------------------
+;printgotoxy
+;moves the cursor to pacX and pacY then writes a char
+;then moves the curosr to the bottom of the screen
+;Needs pacX, pacY
+;Returns nothing
+;Uses esi ebx
+;---------------------
+printgotoxy proc USES edx ebx
+;note to self use dl=pacX+1 dh=pacY+1
+;gotoXY takes in dl:column(aka which column X), dh:row(aka which row Y)
+;then call Gotoxy
+	mov ebx, 0
+	mov ebx, pacX
+	mov dl, bl
+	inc pacy
+	mov dh, pacY
+	dec pacY
+	call Gotoxy
+	call writechar
+
+;calls gotoxy a 2nd time so there's no flickering '_' cursor marker 
+;also so that"press any key" is at the bottom of the screen.
+	mov dh, 0
+	mov dl, 0
+	call gotoxy
+	push eax
+	mov eax, 300
+	call delay
+	pop eax
+
+ret
+printgotoxy endp
 
 
 END main
