@@ -35,6 +35,7 @@ line1C db "# o ################### o ### o ################### o #",0
 line1D db "# o ################### o ### o ################### o #",0
 line1E db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
 line1F db "#######################################################",0
+line20 db "Score: ", 0
 
 CaseTable BYTE 1 ; lookup Value
 	DWORD Process_1 ;address of procedure
@@ -207,7 +208,13 @@ updatedots proc
 	ret
 updatedots endp
 
-Drawstart Proc
+Drawstart Proc uses eax
+mov edx, offset line20
+call writestring
+mov eax, 0
+mov al, score
+call writeint
+call crlf
 mov edx , offset line1
 call writestring
 call crlf
@@ -423,13 +430,13 @@ checkdot proc USES eax
 	je islittledot
 	cmp ah, '0'
 	je isbigdot
-	jmp end
+	jmp nodot
 	islittledot:
 	inc score
-	jmp end
-	isibigdot:
+	jmp nodot
+	isbigdot:
 	add score, 5
-	end:
+	nodot:
 	ret
 checkdot endp
 
