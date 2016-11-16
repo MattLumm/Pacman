@@ -674,6 +674,9 @@ Process_31 ENDP
 ;updates the score that is shown on the screen
 ;-------
 updatescore proc USES edx eax
+	mov dh, 1
+	mov dl, 0
+	call gotoxy
 	mov edx, offset line20
 	call writestring
 	mov eax, 0
