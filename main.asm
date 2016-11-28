@@ -500,6 +500,8 @@ checkdot proc USES eax
 	isbigdot:
 	add score, 5
 	nodot:
+	cmp score, 310
+	jge youWin
 	call updatescore
 	ret
 checkdot endp
