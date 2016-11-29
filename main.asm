@@ -173,30 +173,78 @@ main PROC
 	mov ebx, 0
 	call spawnpac
 	call drawstart
-	Call movpacright
-	Call movpacright
-	Call movpacright
-	Call movpacright
-	Call movpacdown
-	Call movpacdown
-	Call movpacdown
-	Call movpacdown
-	Call movpacright
-	Call movpacright
-	Call movpacright
-	Call movpacright
-	Call movpacright
-	Call movpacright
-	Call movpacright
-	Call movpacright
-	Call movpacright
-	Call movpacright
-	Call movpacright
+
+	mov ecx, 10
+gameloop:
+	mov eax, 100
+	call delay
+	call readkey
+	
+	cmp al,'d'
+	je right
+	cmp al,'w'
+	je up
+	cmp al, 'a'
+	je left
+	cmp al, 's'
+	je down
+	cmp dx,VK_ESCAPE
+	je quit
+
+	mov al, pacdir
+	cmp al,'d'
+	je right
+	cmp al,'w'
+	je up
+	cmp al, 'a'
+	je left
+	cmp al, 's'
+	je down
+
+	add ecx, 1
+	loop gameloop
+right:
+	call movpacright
+	jmp gameloop
+left:
+	call movpacleft
+	jmp gameloop
+down:
+	call movpacdown
+	jmp gameloop
+up:
+	call movpacup
+	jmp gameloop
+quit:
+	
 
 
-	call movpacleft
-	call movpacleft
-	call movpacleft
+
+	
+	;Call movpacright
+	;Call movpacright
+	;Call movpacright
+	;Call movpacright
+	;Call movpacdown
+	;Call movpacdown
+	;Call movpacdown
+	;Call movpacdown
+	;Call movpacright
+	;Call movpacright
+	;Call movpacright
+	;Call movpacright
+	;Call movpacright
+	;Call movpacright
+	;Call movpacright
+	;Call movpacright
+	;Call movpacright
+	;Call movpacright
+	;Call movpacright
+	;
+	;
+	;call movpacleft
+	;call movpacleft
+	;call movpacleft
 
 youWin:
 call clrscr
@@ -374,7 +422,7 @@ spawnpac endp
 ;---------------------
 movpacright proc USES esi eax
 ; need to check if the next spot is open or not
-; set pacDir = 0 to rep pac heading right, replace pacX, pacY with _ to represent pellet eaten, then inc pacX, move pac to pacX, pacY 
+; set pacDir = 'd' to rep pac heading right, replace pacX, pacY with _ to represent pellet eaten, then inc pacX, move pac to pacX, pacY 
 	
 ;checks for teleport	
 	call setline
@@ -405,7 +453,7 @@ check:
 	cmp ah, '#'
 	je collision
 	
-	mov pacDir, 0
+	mov pacDir, 'd'
 	Call setline
 	add esi, pacX
 	mov al, '_'
@@ -434,7 +482,7 @@ movpacright endp
 ;---------------------
 movpacleft proc USES esi eax
 ; need to check if the next spot is open or not
-; set pacDir = 1 to rep pac heading left, replace pacX, pacY with _ to represent pellet eaten, then dec pacX, move pac to pacX, pacY 
+; set pacDir = 'a' to rep pac heading left, replace pacX, pacY with _ to represent pellet eaten, then dec pacX, move pac to pacX, pacY 
 
 ;checks for teleport	
 	call setline
@@ -465,7 +513,7 @@ check:
 	cmp ah, '#'
 	je collision
 ;moves pacman normally
-	mov pacDir, 1
+	mov pacDir, 'a'
 	Call setline
 	add esi, pacX
 	mov al, '_'
@@ -500,8 +548,8 @@ checkdot proc USES eax
 	isbigdot:
 	add score, 5
 	nodot:
-	cmp score, 310
-	jge youWin
+	;cmp score, 310
+	;jge youWin
 	call updatescore
 	ret
 checkdot endp
@@ -517,7 +565,7 @@ checkdot endp
 ;---------------------
 movpacup proc USES esi eax
 ; need to check if the next spot is open still
-; set pacDir = 2 to rep pac heading up, replace pacX, pacY with _, then dec pacY, mov pac to pacX, pacY	
+; set pacDir = 'w' to rep pac heading up, replace pacX, pacY with _, then dec pacY, mov pac to pacX, pacY	
 	dec pacY
 	call setline
 	inc pacY
@@ -527,7 +575,7 @@ movpacup proc USES esi eax
 	cmp ah, '#'
 	je collision	
 	
-	mov pacDir, 2
+	mov pacDir, 'w'
 	Call setline
 	add esi, pacX
 	mov al,'_'
@@ -554,7 +602,7 @@ movpacup endp
 ;---------------------
 movpacdown proc USES esi eax
 ; need to check if the next spot is open still
-; set pacDir = 4 to rep pac heading down, replace pacX, pacY with _, then inc pacY, mov pac to pacX, pacY
+; set pacDir = 's' to rep pac heading down, replace pacX, pacY with _, then inc pacY, mov pac to pacX, pacY
 	inc pacY
 	call setline
 	dec pacY
@@ -564,7 +612,7 @@ movpacdown proc USES esi eax
 	cmp ah, '#'
 	je collision	
 	
-	mov pacDir, 3
+	mov pacDir, 's'
 	Call setline
 	add esi, pacX
 	mov al,'_'
@@ -776,11 +824,13 @@ printgotoxy proc USES edx ebx
 	mov dh, 0
 	mov dl, 0
 	call gotoxy
+	cmp al, '_'			;if printing '_' don't bother with the delay
+	je skipdelay
 	push eax
 	mov eax, 300
 	call delay
 	pop eax
-
+skipdelay:
 ret
 printgotoxy endp
 
