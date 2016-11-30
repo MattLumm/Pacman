@@ -160,9 +160,35 @@ instructions2 db "A is left, S is down, D is right, W is up",0
 instructions3 db "Press space bar to start",0
 goodluckmsg db "GOOD LUCK",0
 
+ghost1 db "G", 0
+ghost2 db "G", 0
+ghost3 db "G", 0
+ghost4 db "G", 0
+
+ghost1x dd 0
+ghost1y dd 0
+ghost1dir db 0
+ghost2x db ?
+ghost2y db ?
+ghost3x db ?
+ghost3y db ?
+
+ghostx		BYTE   24
+ghosty		BYTE   16
+prevx		BYTE   11
+prevy		BYTE   16
+deltax		SBYTE  0
+deltay		SBYTE  0
+
+buffer BYTE 1000 DUP(?)
+saveBuffer BYTE 1000 DUP(?)
+temploc byte ?
+
+
 .code
 main PROC
-	call buildSplashScreen
+	call randomize
+	;call buildSplashScreen
 	call readchar
 	cmp al, 20h
 	je startGame
@@ -174,8 +200,8 @@ main PROC
 	call spawnpac
 	call drawstart
 
-	mov ecx, 10
 gameloop:
+	call spawnGhosts
 	mov eax, 100
 	call delay
 	call readkey
@@ -1189,6 +1215,121 @@ slowdown PROC
 	pop  eax
 	ret
 slowdown ENDP
+
+spawnGhosts proc 
+	call getDirection
+	call movGhosts
+	call checkMapLoc
+	call DrawGhosts
+	call slowdown
+	ret
+spawnGhosts endp
+
+getDirection proc
+	mov deltax, 0
+	mov deltay, 0
+	mov eax, 5
+	call randomrange
+
+	cmp eax, 1
+	je right
+	cmp eax, 2
+	je left
+	cmp eax, 3
+	je up
+	cmp eax, 4
+	je down
+
+	right:
+		mov deltax, 1
+		mov deltay, 0
+		jmp stop
+	left:
+		mov deltax, -1
+		mov deltay, 0
+		jmp stop
+	up:
+		mov deltax, 0
+		mov deltay, -1
+		jmp stop
+	down:
+		mov deltax, 0
+		mov deltay, 1
+		jmp stop
+	stop:
+		ret
+
+getDirection endp
+
+movGhosts proc uses eax ebx
+	;get previous location
+	mov bl, ghostx
+	mov prevx, bl
+	mov bl, ghosty
+	mov prevy, bl
+	
+	;mov to new location
+	mov al, deltax
+	add ghostx, al
+	mov al, deltay
+	add ghosty, al
+	
+	ret
+movGhosts endp
+
+
+
+checkMapLoc proc
+	mov al, ghosty
+	call setline
+	mov ah,[esi]
+	cmp ah, '#'
+	je collision
+	cmp ah, 'o'
+	mov temploc, 1
+	cmp ah, '0'
+	mov temploc, 2
+
+
+
+
+
+		ret
+
+checkMapLoc endp
+
+MoveBack proc USES eax
+	mov eax, 0
+	mov al, prevx
+	mov ghostx, al
+	mov al, prevy
+	mov ghosty, al
+	ret
+MoveBack endp
+
+DrawGhosts proc USES eax edx ecx
+	mov dl, ghostx                      ; Get Coordinates
+	mov dh, ghosty                      ; Get Coordinates
+	call GotoXY
+	mov eax, yellow + (black * 16)
+	call SetTextColor
+	mov eax, "G"
+	call WriteChar                       ; Draw Yellow Smiley at X,Y
+	mov dl, prevx
+	mov dh, prevy
+	call gotoxy
+	mov eax, " "
+	call writechar
+	mov eax, white + (black * 16)
+	call SetTextColor                    ; Set the text color back to white on black
+	mov ecx, 23
+	sub cl, ghosty
+	ClearCRLF:                           ; Clear a bunch of lines to print at the bottom
+		call CRLF
+	Loop ClearCRLF
+
+	ret
+DrawGhosts endp
 
 
 END main
