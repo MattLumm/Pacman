@@ -1286,14 +1286,21 @@ checkMapLoc proc
 	cmp ah, '#'
 	je collision
 	cmp ah, 'o'
-	mov temploc, 1
+	je setDot
 	cmp ah, '0'
-	mov temploc, 2
-
-
-
-
-
+	je setFruit
+	jmp stop
+	
+	setDot:
+		mov temploc, 1
+		jmp stop
+	setFruit:
+		mov temploc, 2
+		jmp stop
+	collision:
+		call MoveBack
+		jmp stop
+	stop:
 		ret
 
 checkMapLoc endp
