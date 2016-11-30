@@ -14,29 +14,29 @@ line5 db "# o ####### o ######### o ### o ######### o ####### o #",0
 line6 db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
 line7 db "# o # # # # o # # o ############### o ### o ####### o #",0
 line8 db "# o # # # # o # # o ############### o ### o ####### o #",0
+;line9 db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
 line9 db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
-lineA db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
-lineB db "########### o # # # # # o ### o # # # ### o ###########",0
-lineC db "#         # o # # o o o o o o o o o o # # o #         #",0
-lineD db "#         # o # # o #####     ##### o ### o #         #",0
-lineE db "#         # o # # o #             # o ### o #         #",0
-lineF db "########### o # # o #             # o ### o ###########",0
-line10 db "            o o o o #             # o o o o            ",0
-line11 db "########### o # # o ############### o ### o ###########",0
-line12 db "#         # o # # o o o o o o o o o o ### o #         #",0
-line13 db "#         # o # # o # # # # # # # # o ### o #         #",0
-line14 db "########### o # # o # # # # # # # # o ### o ###########",0
-line15 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
+lineA db "########### o # # # # # o ### o # # # ### o ###########",0
+lineB db "#         # o # # o o o o o o o o o o # # o #         #",0
+lineC db "#         # o # # o #####     ##### o ### o #         #",0
+lineD db "#         # o # # o #             # o ### o #         #",0
+lineE db "########### o # # o #             # o ### o ###########",0
+lineF db "            o o o o #             # o o o o            ",0
+line10 db "########### o # # o ############### o ### o ###########",0
+line11 db "#         # o # # o o o o o o o o o o ### o #         #",0
+line12 db "#         # o # # o # # # # # # # # o ### o #         #",0
+line13 db "########### o # # o # # # # # # # # o ### o ###########",0
+line14 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
+line15 db "# o ####### o ######### o ### o ######### o ####### o #",0
 line16 db "# o ####### o ######### o ### o ######### o ####### o #",0
-line17 db "# o ####### o ######### o ### o ######### o ####### o #",0
-line18 db "# 0 o o ### o o o o o o o o o o o o o o o o ### o o 0 #",0
+line17 db "# 0 o o ### o o o o o o o o o o o o o o o o ### o o 0 #",0
+line18 db "##### o ### o ### o ############### o ### o ### o #####",0
 line19 db "##### o ### o ### o ############### o ### o ### o #####",0
-line1A db "##### o ### o ### o ############### o ### o ### o #####",0
-line1B db "# o o o o o o ### o o o o ### o o o o ### o o o o o o #",0
+line1A db "# o o o o o o ### o o o o ### o o o o ### o o o o o o #",0
+line1B db "# o ################### o ### o ################### o #",0
 line1C db "# o ################### o ### o ################### o #",0
-line1D db "# o ################### o ### o ################### o #",0
-line1E db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
-line1F db "#######################################################",0
+line1D db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
+line1E db "#######################################################",0
 line20 db "Score: ", 0
 
 CaseTable BYTE 1 ; lookup Value
@@ -100,8 +100,8 @@ EntrySize = ($ - CaseTable)
 	DWORD Process_29
 		BYTE 30
 	DWORD Process_30
-		BYTE 31
-	DWORD Process_31
+;		BYTE 31
+;	DWORD Process_31
 
 
 NumberOfEntries = ($-CaseTable) / EntrySize
@@ -379,9 +379,9 @@ call crlf
 mov edx , offset line1E
 call writestring
 call crlf
-mov edx , offset line1F
-call writestring
-call crlf
+;mov edx , offset line1F
+;call writestring
+;call crlf
 ret
 Drawstart endp
 
@@ -777,10 +777,10 @@ Process_30 PROC
 	mov esi, offset line1E
 	ret
 Process_30 ENDP
-Process_31 PROC
-	mov esi, offset line1F
-	ret
-Process_31 ENDP
+;Process_31 PROC
+;	mov esi, offset line1F
+;	ret
+;Process_31 ENDP
 
 ;------
 ;update score
