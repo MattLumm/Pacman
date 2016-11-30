@@ -430,6 +430,7 @@ pacDir db 0
 ; this will just put pacman into the board at 12X13 aka lineC at index 14
 	mov pacY, 12
 	;mov esi, offset lineC
+	mov al, PacY
 	Call setline
 	mov pacx, 28
 	add esi, pacx
@@ -453,6 +454,7 @@ movpacright proc USES esi eax
 ; set pacDir = 'd' to rep pac heading right, replace pacX, pacY with _ to represent pellet eaten, then inc pacX, move pac to pacX, pacY 
 	
 ;checks for teleport	
+	mov al, PacY
 	call setline
 	cmp pacX, 54
 	je teleport
@@ -464,6 +466,7 @@ teleport:
 	mov [esi], al
 	call printgotoxy
 	mov pacX, 0
+	mov al, PacY
 	call setline
 	add esi, pacX
 	mov al, '<'
@@ -472,6 +475,7 @@ teleport:
 	jmp collision
 check:
 ;checks for collision
+	mov al, PacY
 	call setline
 	add esi, pacX
 	inc esi
@@ -482,6 +486,7 @@ check:
 	je collision
 	
 	mov pacDir, 'd'
+	mov al, PacY
 	Call setline
 	add esi, pacX
 	mov al, '_'
@@ -512,7 +517,8 @@ movpacleft proc USES esi eax
 ; need to check if the next spot is open or not
 ; set pacDir = 'a' to rep pac heading left, replace pacX, pacY with _ to represent pellet eaten, then dec pacX, move pac to pacX, pacY 
 
-;checks for teleport	
+;checks for teleport
+	mov al, PacY	
 	call setline
 	cmp pacX, 0
 	je teleport
@@ -524,6 +530,7 @@ teleport:
 	mov [esi], al
 	call printgotoxy
 	mov pacX, 54
+	mov al, PacY
 	call setline
 	add esi, pacX
 	mov al, '>'
@@ -532,6 +539,7 @@ teleport:
 	jmp collision
 check:
 ;checks for collision
+	mov al, PacY
 	call setline
 	add esi, pacX
 	dec esi
@@ -542,6 +550,7 @@ check:
 	je collision
 ;moves pacman normally
 	mov pacDir, 'a'
+	mov al, PacY
 	Call setline
 	add esi, pacX
 	mov al, '_'
@@ -595,6 +604,7 @@ movpacup proc USES esi eax
 ; need to check if the next spot is open still
 ; set pacDir = 'w' to rep pac heading up, replace pacX, pacY with _, then dec pacY, mov pac to pacX, pacY	
 	dec pacY
+	mov al, PacY
 	call setline
 	inc pacY
 	add esi, pacX
@@ -604,12 +614,14 @@ movpacup proc USES esi eax
 	je collision	
 	
 	mov pacDir, 'w'
+	mov al, PacY
 	Call setline
 	add esi, pacX
 	mov al,'_'
 	mov [esi], al
 	call printgotoxy
 	dec pacY
+	mov al, PacY
 	Call setline
 	add esi, pacX
 	mov al, 'v'
@@ -632,6 +644,7 @@ movpacdown proc USES esi eax
 ; need to check if the next spot is open still
 ; set pacDir = 's' to rep pac heading down, replace pacX, pacY with _, then inc pacY, mov pac to pacX, pacY
 	inc pacY
+	mov al, PacY
 	call setline
 	dec pacY
 	add esi, pacX
@@ -641,12 +654,14 @@ movpacdown proc USES esi eax
 	je collision	
 	
 	mov pacDir, 's'
+	mov al, PacY
 	Call setline
 	add esi, pacX
 	mov al,'_'
 	mov [esi], al
 	call printgotoxy
 	inc pacY
+	mov al, PacY
 	Call setline
 	add esi, pacX
 	mov al, '^'
@@ -665,7 +680,7 @@ movpacdown endp
 ;---------------------
 setline proc
 ;call readchar	;read char to AL
-	mov al, PacY				; so you have the right column get selected
+	;mov al, PacY				; so you have the right column get selected
 	mov ebx, offset CaseTable ; point ebx to the table
 	mov ecx, NumberOfEntries ; loop counter
 L1:
