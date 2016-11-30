@@ -18,7 +18,7 @@ line8 db "# o # # # # o # # o ############### o ### o ####### o #",0
 line9 db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
 lineA db "########### o # # # # # o ### o # # # ### o ###########",0
 lineB db "#         # o # # o o o o o o o o o o # # o #         #",0
-lineC db "#         # o # # o #####     ##### o ### o #         #",0
+lineC db "#         # o # # o #####_____##### o ### o #         #",0
 lineD db "#         # o # # o #             # o ### o #         #",0
 lineE db "########### o # # o #             # o ### o ###########",0
 lineF db "            o o o o #             # o o o o            ",0
@@ -180,6 +180,8 @@ gameloop:
 	call delay
 	call readkey
 	
+	
+
 	cmp al,'d'
 	je right
 	cmp al,'w'
