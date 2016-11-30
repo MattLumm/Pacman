@@ -14,29 +14,29 @@ line5 db "# o ####### o ######### o ### o ######### o ####### o #",0
 line6 db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
 line7 db "# o # # # # o # # o ############### o ### o ####### o #",0
 line8 db "# o # # # # o # # o ############### o ### o ####### o #",0
+;line9 db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
 line9 db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
-lineA db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
-lineB db "########### o # # # # # o ### o # # # ### o ###########",0
-lineC db "#         # o # # o o o o o o o o o o # # o #         #",0
-lineD db "#         # o # # o #####_____##### o ### o #         #",0
-lineE db "#         # o # # o #             # o ### o #         #",0
-lineF db "########### o # # o #             # o ### o ###########",0
-line10 db "            o o o o #             # o o o o            ",0
-line11 db "########### o # # o ############### o ### o ###########",0
-line12 db "#         # o # # o o o o o o o o o o ### o #         #",0
-line13 db "#         # o # # o # # # # # # # # o ### o #         #",0
-line14 db "########### o # # o # # # # # # # # o ### o ###########",0
-line15 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
+lineA db "########### o # # # # # o ### o # # # ### o ###########",0
+lineB db "#         # o # # o o o o o o o o o o # # o #         #",0
+lineC db "#         # o # # o #####_____##### o ### o #         #",0
+lineD db "#         # o # # o #             # o ### o #         #",0
+lineE db "########### o # # o #             # o ### o ###########",0
+lineF db "            o o o o #             # o o o o            ",0
+line10 db "########### o # # o ############### o ### o ###########",0
+line11 db "#         # o # # o o o o o o o o o o ### o #         #",0
+line12 db "#         # o # # o # # # # # # # # o ### o #         #",0
+line13 db "########### o # # o # # # # # # # # o ### o ###########",0
+line14 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
+line15 db "# o ####### o ######### o ### o ######### o ####### o #",0
 line16 db "# o ####### o ######### o ### o ######### o ####### o #",0
-line17 db "# o ####### o ######### o ### o ######### o ####### o #",0
-line18 db "# 0 o o ### o o o o o o o o o o o o o o o o ### o o 0 #",0
+line17 db "# 0 o o ### o o o o o o o o o o o o o o o o ### o o 0 #",0
+line18 db "##### o ### o ### o ############### o ### o ### o #####",0
 line19 db "##### o ### o ### o ############### o ### o ### o #####",0
-line1A db "##### o ### o ### o ############### o ### o ### o #####",0
-line1B db "# o o o o o o ### o o o o ### o o o o ### o o o o o o #",0
+line1A db "# o o o o o o ### o o o o ### o o o o ### o o o o o o #",0
+line1B db "# o ################### o ### o ################### o #",0
 line1C db "# o ################### o ### o ################### o #",0
-line1D db "# o ################### o ### o ################### o #",0
-line1E db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
-line1F db "#######################################################",0
+line1D db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
+line1E db "#######################################################",0
 line20 db "Score: ", 0
 
 CaseTable BYTE 1 ; lookup Value
@@ -100,8 +100,8 @@ EntrySize = ($ - CaseTable)
 	DWORD Process_29
 		BYTE 30
 	DWORD Process_30
-		BYTE 31
-	DWORD Process_31
+;		BYTE 31
+;	DWORD Process_31
 
 
 NumberOfEntries = ($-CaseTable) / EntrySize
@@ -160,9 +160,35 @@ instructions2 db "A is left, S is down, D is right, W is up",0
 instructions3 db "Press space bar to start",0
 goodluckmsg db "GOOD LUCK",0
 
+ghost1 db "G", 0
+ghost2 db "G", 0
+ghost3 db "G", 0
+ghost4 db "G", 0
+
+ghost1x dd 0
+ghost1y dd 0
+ghost1dir db 0
+ghost2x db ?
+ghost2y db ?
+ghost3x db ?
+ghost3y db ?
+
+ghostx		BYTE   24
+ghosty		BYTE   16
+prevx		BYTE   11
+prevy		BYTE   16
+deltax		SBYTE  0
+deltay		SBYTE  0
+
+buffer BYTE 1000 DUP(?)
+saveBuffer BYTE 1000 DUP(?)
+temploc byte ?
+
+
 .code
 main PROC
-	call buildSplashScreen
+	call randomize
+	;call buildSplashScreen
 	call readchar
 	cmp al, 20h
 	je startGame
@@ -174,12 +200,14 @@ main PROC
 	call spawnpac
 	call drawstart
 
-	mov ecx, 10
 gameloop:
+	call spawnGhosts
 	mov eax, 100
 	call delay
 	call readkey
 	
+	
+
 	cmp al,'d'
 	je right
 	cmp al,'w'
@@ -379,9 +407,9 @@ call crlf
 mov edx , offset line1E
 call writestring
 call crlf
-mov edx , offset line1F
-call writestring
-call crlf
+;mov edx , offset line1F
+;call writestring
+;call crlf
 ret
 Drawstart endp
 
@@ -402,7 +430,6 @@ pacDir db 0
 ; this will just put pacman into the board at 12X13 aka lineC at index 14
 	mov pacY, 12
 	;mov esi, offset lineC
-	mov al, PacY
 	Call setline
 	mov pacx, 28
 	add esi, pacx
@@ -414,7 +441,7 @@ spawnpac endp
 ;---------------------
 ;movpacright
 ;moves pacX up 2 and shifts the pacman icon 2 to the right in the line index. 
-;Also replaces where pacman was with' '. 
+;Also replaces where pacman was with'_'. 
 ;Checks for collision with '#' in two spaces ahead and doesn't move if a wall does exist
 ;Will wrap around the array if it move right from the 54 index will move to 0 index
 ;Needs line#, pacX, pacY
@@ -423,10 +450,9 @@ spawnpac endp
 ;---------------------
 movpacright proc USES esi eax
 ; need to check if the next spot is open or not
-; set pacDir = 'd' to rep pac heading right, replace pacX, pacY with ' ' to represent pellet eaten, then inc pacX, move pac to pacX, pacY 
+; set pacDir = 'd' to rep pac heading right, replace pacX, pacY with _ to represent pellet eaten, then inc pacX, move pac to pacX, pacY 
 	
 ;checks for teleport	
-	mov al, PacY
 	call setline
 	cmp pacX, 54
 	je teleport
@@ -434,11 +460,10 @@ movpacright proc USES esi eax
 teleport:
 	add esi, pacX
 	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
-	mov al, ' '
+	mov al, '_'
 	mov [esi], al
 	call printgotoxy
 	mov pacX, 0
-	mov al, PacY
 	call setline
 	add esi, pacX
 	mov al, '<'
@@ -447,7 +472,6 @@ teleport:
 	jmp collision
 check:
 ;checks for collision
-	mov al, PacY
 	call setline
 	add esi, pacX
 	inc esi
@@ -458,10 +482,9 @@ check:
 	je collision
 	
 	mov pacDir, 'd'
-	mov al, PacY
 	Call setline
 	add esi, pacX
-	mov al, ' '
+	mov al, '_'
 	mov [esi], al
 	call printgotoxy
 	inc esi
@@ -478,7 +501,7 @@ movpacright endp
 ;---------------------
 ;movpacleft
 ;moves pacX down 2 and shifts the pacman icon 2 to the right in the line index. 
-;Also replaces where pacman was with' '. 
+;Also replaces where pacman was with'_'. 
 ;Checks for collision with '#' in two spaces ahead and doesn't move if a wall does exist
 ;Will wrap around the array if pac moves left from the 0 index will move to 54 index
 ;Needs line#, pacX, pacY
@@ -487,10 +510,9 @@ movpacright endp
 ;---------------------
 movpacleft proc USES esi eax
 ; need to check if the next spot is open or not
-; set pacDir = 'a' to rep pac heading left, replace pacX, pacY with ' ' to represent pellet eaten, then dec pacX, move pac to pacX, pacY 
+; set pacDir = 'a' to rep pac heading left, replace pacX, pacY with _ to represent pellet eaten, then dec pacX, move pac to pacX, pacY 
 
 ;checks for teleport	
-	mov al, PacY
 	call setline
 	cmp pacX, 0
 	je teleport
@@ -498,11 +520,10 @@ movpacleft proc USES esi eax
 teleport:
 	add esi, pacX
 	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
-	mov al, ' '
+	mov al, '_'
 	mov [esi], al
 	call printgotoxy
 	mov pacX, 54
-	mov al, PacY
 	call setline
 	add esi, pacX
 	mov al, '>'
@@ -511,7 +532,6 @@ teleport:
 	jmp collision
 check:
 ;checks for collision
-	mov al, PacY
 	call setline
 	add esi, pacX
 	dec esi
@@ -522,10 +542,9 @@ check:
 	je collision
 ;moves pacman normally
 	mov pacDir, 'a'
-	mov al, PacY
 	Call setline
 	add esi, pacX
-	mov al, ' '
+	mov al, '_'
 	mov [esi], al
 	call printgotoxy
 	dec esi
@@ -566,7 +585,7 @@ checkdot endp
 ;---------------------
 ;movpacup
 ;moves pacY up 1 and shifts the pacman icon 1 up in lines
-;Also replaces where pacman was with' '. 
+;Also replaces where pacman was with'_'. 
 ;Checks for collision with '#' in two spaces ahead and doesn't move if a wall does exist
 ;Needs line#, pacX, pacY
 ;Returns pacY, line#
@@ -574,9 +593,8 @@ checkdot endp
 ;---------------------
 movpacup proc USES esi eax
 ; need to check if the next spot is open still
-; set pacDir = 'w' to rep pac heading up, replace pacX, pacY with ' ', then dec pacY, mov pac to pacX, pacY	
+; set pacDir = 'w' to rep pac heading up, replace pacX, pacY with _, then dec pacY, mov pac to pacX, pacY	
 	dec pacY
-	mov al, PacY
 	call setline
 	inc pacY
 	add esi, pacX
@@ -586,14 +604,12 @@ movpacup proc USES esi eax
 	je collision	
 	
 	mov pacDir, 'w'
-	mov al, PacY
 	Call setline
 	add esi, pacX
-	mov al,' '
+	mov al,'_'
 	mov [esi], al
 	call printgotoxy
 	dec pacY
-	mov al, PacY
 	Call setline
 	add esi, pacX
 	mov al, 'v'
@@ -606,7 +622,7 @@ movpacup endp
 ;---------------------
 ;movpacdown
 ;moves pacY down 1 and shifts the pacman icon 1 down in lines
-;Also replaces where pacman was with' '. 
+;Also replaces where pacman was with'_'. 
 ;Checks for collision with '#' in two spaces ahead and doesn't move if a wall does exist
 ;Needs line#, pacX, pacY
 ;Returns pacY, line#
@@ -614,9 +630,8 @@ movpacup endp
 ;---------------------
 movpacdown proc USES esi eax
 ; need to check if the next spot is open still
-; set pacDir = 's' to rep pac heading down, replace pacX, pacY with ' ', then inc pacY, mov pac to pacX, pacY
+; set pacDir = 's' to rep pac heading down, replace pacX, pacY with _, then inc pacY, mov pac to pacX, pacY
 	inc pacY
-	mov al, PacY
 	call setline
 	dec pacY
 	add esi, pacX
@@ -626,14 +641,12 @@ movpacdown proc USES esi eax
 	je collision	
 	
 	mov pacDir, 's'
-	mov al, PacY
 	Call setline
 	add esi, pacX
-	mov al,' '
+	mov al,'_'
 	mov [esi], al
 	call printgotoxy
 	inc pacY
-	mov al, PacY
 	Call setline
 	add esi, pacX
 	mov al, '^'
@@ -645,14 +658,14 @@ movpacdown endp
 
 ;---------------------
 ;setline
-;used to set the esi to the line of PacY,ghosty,whatever's in al
-;Needs line#, al needs to be the pacY,ghosty,...
+;used to set the esi to the line of PacY
+;Needs line#, pacY
 ;Returns esi 
 ;Uses esi eax
 ;---------------------
 setline proc
 ;call readchar	;read char to AL
-	;mov al, PacY				; so you have the right column get selected
+	mov al, PacY				; so you have the right column get selected
 	mov ebx, offset CaseTable ; point ebx to the table
 	mov ecx, NumberOfEntries ; loop counter
 L1:
@@ -792,10 +805,10 @@ Process_30 PROC
 	mov esi, offset line1E
 	ret
 Process_30 ENDP
-Process_31 PROC
-	mov esi, offset line1F
-	ret
-Process_31 ENDP
+;Process_31 PROC
+;	mov esi, offset line1F
+;	ret
+;Process_31 ENDP
 
 ;------
 ;update score
@@ -834,12 +847,12 @@ printgotoxy proc USES edx ebx
 	call Gotoxy
 	call writechar
 
-;calls gotoxy a 2nd time so there's no flickering ' ' cursor marker 
+;calls gotoxy a 2nd time so there's no flickering '_' cursor marker 
 ;also so that"press any key" is at the bottom of the screen.
 	mov dh, 0
 	mov dl, 0
 	call gotoxy
-	cmp al, ' '			;if printing ' ' don't bother with the delay
+	cmp al, '_'			;if printing '_' don't bother with the delay
 	je skipdelay
 	push eax
 	mov eax, 300
@@ -1204,6 +1217,121 @@ slowdown PROC
 	pop  eax
 	ret
 slowdown ENDP
+
+spawnGhosts proc 
+	call getDirection
+	call movGhosts
+	call checkMapLoc
+	call DrawGhosts
+	call slowdown
+	ret
+spawnGhosts endp
+
+getDirection proc
+	mov deltax, 0
+	mov deltay, 0
+	mov eax, 5
+	call randomrange
+
+	cmp eax, 1
+	je right
+	cmp eax, 2
+	je left
+	cmp eax, 3
+	je up
+	cmp eax, 4
+	je down
+
+	right:
+		mov deltax, 1
+		mov deltay, 0
+		jmp stop
+	left:
+		mov deltax, -1
+		mov deltay, 0
+		jmp stop
+	up:
+		mov deltax, 0
+		mov deltay, -1
+		jmp stop
+	down:
+		mov deltax, 0
+		mov deltay, 1
+		jmp stop
+	stop:
+		ret
+
+getDirection endp
+
+movGhosts proc uses eax ebx
+	;get previous location
+	mov bl, ghostx
+	mov prevx, bl
+	mov bl, ghosty
+	mov prevy, bl
+	
+	;mov to new location
+	mov al, deltax
+	add ghostx, al
+	mov al, deltay
+	add ghosty, al
+	
+	ret
+movGhosts endp
+
+
+
+checkMapLoc proc
+	mov al, ghosty
+	call setline
+	mov ah,[esi]
+	cmp ah, '#'
+	je collision
+	cmp ah, 'o'
+	mov temploc, 1
+	cmp ah, '0'
+	mov temploc, 2
+
+
+
+
+
+		ret
+
+checkMapLoc endp
+
+MoveBack proc USES eax
+	mov eax, 0
+	mov al, prevx
+	mov ghostx, al
+	mov al, prevy
+	mov ghosty, al
+	ret
+MoveBack endp
+
+DrawGhosts proc USES eax edx ecx
+	mov dl, ghostx                      ; Get Coordinates
+	mov dh, ghosty                      ; Get Coordinates
+	call GotoXY
+	mov eax, yellow + (black * 16)
+	call SetTextColor
+	mov eax, "G"
+	call WriteChar                       ; Draw Yellow Smiley at X,Y
+	mov dl, prevx
+	mov dh, prevy
+	call gotoxy
+	mov eax, " "
+	call writechar
+	mov eax, white + (black * 16)
+	call SetTextColor                    ; Set the text color back to white on black
+	mov ecx, 23
+	sub cl, ghosty
+	ClearCRLF:                           ; Clear a bunch of lines to print at the bottom
+		call CRLF
+	Loop ClearCRLF
+
+	ret
+DrawGhosts endp
 
 
 END main
