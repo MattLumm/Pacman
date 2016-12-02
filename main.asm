@@ -5,7 +5,7 @@ INCLUDE Irvine32.inc
 ;command console should be height=35(so gotoxy doesn't shift the console)
 ;							 width 56+scoredboard and other stuff
 winning byte 0
-score byte 0
+score word 0
 line1 db "#######################################################",0
 line2 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
 line3 db "# o ####### o ######### o ### o ######### o ####### o #",0
@@ -189,7 +189,7 @@ temploc byte ?
 .code
 main PROC
 	call randomize
-	;call buildSplashScreen
+	call buildSplashScreen
 	call readchar
 	cmp al, 20h
 	je startGame
@@ -207,6 +207,9 @@ gameloop:
 	call delay
 	call readkey
 	
+	cmp score, 310
+	;cmp score, 20 ;for testing purposes only
+	jge youWin
 	
 
 	cmp al,'d'
@@ -312,11 +315,17 @@ updatedots proc
 updatedots endp
 
 Drawstart Proc uses eax
+	mov dh, 10
+	mov dl, 60
+	call gotoxy
 mov edx, offset line20
 call writestring
 mov eax, 0
-mov al, score
+mov ax, score
 call writeint
+mov dh, 1
+mov dl, 0
+call gotoxy
 call crlf
 mov edx , offset line1
 call writestring
@@ -831,13 +840,13 @@ Process_30 ENDP
 ;updates the score that is shown on the screen
 ;-------
 updatescore proc USES edx eax
-	mov dh, 1
-	mov dl, 0
+	mov dh, 10
+	mov dl, 60
 	call gotoxy
 	mov edx, offset line20
 	call writestring
 	mov eax, 0
-	mov al, score
+	mov ax, score
 	call writeint
 	ret
 updatescore endp
