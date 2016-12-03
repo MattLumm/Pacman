@@ -189,7 +189,7 @@ temploc byte ?
 .code
 main PROC
 	call randomize
-	call buildSplashScreen
+	;call buildSplashScreen
 	call readchar
 	cmp al, 20h
 	je startGame
@@ -438,7 +438,7 @@ pacY db 0
 pacDir db 0
 .code
 ; this will just put pacman into the board at 12X13 aka lineC at index 14
-	mov pacY, 12
+	mov pacY, 11
 	;mov esi, offset lineC
 	mov al, PacY
 	Call setline
@@ -452,7 +452,7 @@ spawnpac endp
 ;---------------------
 ;movpacright
 ;moves pacX up 2 and shifts the pacman icon 2 to the right in the line index. 
-;Also replaces where pacman was with'_'. 
+;Also replaces where pacman was with' '. 
 ;Checks for collision with '#' in two spaces ahead and doesn't move if a wall does exist
 ;Will wrap around the array if it move right from the 54 index will move to 0 index
 ;Needs line#, pacX, pacY
@@ -472,7 +472,7 @@ movpacright proc USES esi eax
 teleport:
 	add esi, pacX
 	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
-	mov al, '_'
+	mov al, ' '
 	mov [esi], al
 	call printgotoxy
 	mov pacX, 0
@@ -494,12 +494,14 @@ check:
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision
+	cmp ah, '_'
+	je collision
 	
 	mov pacDir, 'd'
 	mov al, PacY
 	Call setline
 	add esi, pacX
-	mov al, '_'
+	mov al, ' '
 	mov [esi], al
 	call printgotoxy
 	inc esi
@@ -516,7 +518,7 @@ movpacright endp
 ;---------------------
 ;movpacleft
 ;moves pacX down 2 and shifts the pacman icon 2 to the right in the line index. 
-;Also replaces where pacman was with'_'. 
+;Also replaces where pacman was with' '. 
 ;Checks for collision with '#' in two spaces ahead and doesn't move if a wall does exist
 ;Will wrap around the array if pac moves left from the 0 index will move to 54 index
 ;Needs line#, pacX, pacY
@@ -536,7 +538,7 @@ movpacleft proc USES esi eax
 teleport:
 	add esi, pacX
 	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
-	mov al, '_'
+	mov al, ' '
 	mov [esi], al
 	call printgotoxy
 	mov pacX, 54
@@ -558,12 +560,14 @@ check:
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision
+	cmp ah, '_'
+	je collision
 ;moves pacman normally
 	mov pacDir, 'a'
 	mov al, PacY
 	Call setline
 	add esi, pacX
-	mov al, '_'
+	mov al, ' '
 	mov [esi], al
 	call printgotoxy
 	dec esi
@@ -604,7 +608,7 @@ checkdot endp
 ;---------------------
 ;movpacup
 ;moves pacY up 1 and shifts the pacman icon 1 up in lines
-;Also replaces where pacman was with'_'. 
+;Also replaces where pacman was with' '. 
 ;Checks for collision with '#' in two spaces ahead and doesn't move if a wall does exist
 ;Needs line#, pacX, pacY
 ;Returns pacY, line#
@@ -622,12 +626,14 @@ movpacup proc USES esi eax
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision	
+	cmp ah, '_'
+	je collision
 	
 	mov pacDir, 'w'
 	mov al, PacY
 	Call setline
 	add esi, pacX
-	mov al,'_'
+	mov al,' '
 	mov [esi], al
 	call printgotoxy
 	dec pacY
@@ -644,7 +650,7 @@ movpacup endp
 ;---------------------
 ;movpacdown
 ;moves pacY down 1 and shifts the pacman icon 1 down in lines
-;Also replaces where pacman was with'_'. 
+;Also replaces where pacman was with' '. 
 ;Checks for collision with '#' in two spaces ahead and doesn't move if a wall does exist
 ;Needs line#, pacX, pacY
 ;Returns pacY, line#
@@ -662,12 +668,14 @@ movpacdown proc USES esi eax
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision	
+	cmp ah, '_'
+	je collision
 	
 	mov pacDir, 's'
 	mov al, PacY
 	Call setline
 	add esi, pacX
-	mov al,'_'
+	mov al,' '
 	mov [esi], al
 	call printgotoxy
 	inc pacY
@@ -854,7 +862,7 @@ updatescore endp
 ;printgotoxy
 ;moves the cursor to pacX and pacY then writes a char
 ;then moves the curosr to the bottom of the screen
-;Needs pacX, pacY
+;Needs pacX, pacY, takes al to determine what color char is
 ;Returns nothing
 ;Uses esi ebx
 ;---------------------
@@ -862,7 +870,22 @@ printgotoxy proc USES edx ebx
 ;note to self use dl=pacX+1 dh=pacY+1
 ;gotoXY takes in dl:column(aka which column X), dh:row(aka which row Y)
 ;then call Gotoxy
-
+	
+	cmp al, '<'
+	je colorpac
+	cmp al, '>'
+	je colorpac
+	cmp al, '^'
+	je colorpac
+	cmp al, 'v'
+	je colorpac
+	jmp print
+colorpac: 
+	push eax
+	mov eax, yellow
+	call settextcolor
+	pop eax
+print:
 	mov ebx, 0
 	mov ebx, pacX
 	mov dl, bl
@@ -872,12 +895,12 @@ printgotoxy proc USES edx ebx
 	call Gotoxy
 	call writechar
 
-;calls gotoxy a 2nd time so there's no flickering '_' cursor marker 
+;calls gotoxy a 2nd time so there's no flickering ' ' cursor marker 
 ;also so that"press any key" is at the bottom of the screen.
 	mov dh, 0
 	mov dl, 0
 	call gotoxy
-	cmp al, '_'			;if printing '_' don't bother with the delay
+	cmp al, ' '			;if printing ' ' don't bother with the delay
 	je skipdelay
 	push eax
 	mov eax, 300
@@ -1559,6 +1582,9 @@ je wallwrite
 cmp bl , 111
 je dotwrite
 
+cmp bl, 60
+je pacwrite
+
 cmp bl , 48
 je bigdotwrite
 
@@ -1576,6 +1602,11 @@ call settextcolor
 jmp writethechar
 
 dotwrite:
+mov eax , white
+call settextcolor
+jmp writethechar
+
+pacwrite:
 mov eax , 14
 call settextcolor
 jmp writethechar
