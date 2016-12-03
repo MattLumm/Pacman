@@ -12,20 +12,20 @@ line3 db "# o ####### o ######### o ### o ######### o ####### o #",0
 line4 db "# 0 #     # o #       # o ### o #       # o #     # 0 #",0
 line5 db "# o ####### o ######### o ### o ######### o ####### o #",0
 line6 db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
-line7 db "# o # # # # o # # o ############### o ### o ####### o #",0
-line8 db "# o # # # # o # # o ############### o ### o ####### o #",0
+line7 db "# o ####### o ### o ############### o ### o ####### o #",0
+line8 db "# o ####### o ### o ############### o ### o ####### o #",0
 ;line9 db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
-line9 db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
-lineA db "########### o # # # # # o ### o # # # ### o ###########",0
-lineB db "#         # o # # o o o o o o o o o o # # o #         #",0
-lineC db "#         # o # # o #####_____##### o ### o #         #",0
-lineD db "#         # o # # o #             # o ### o #         #",0
-lineE db "########### o # # o #             # o ### o ###########",0
+line9 db "# o o o o o o ### o o o o ### o o o o ### o o o o o o #",0
+lineA db "########### o ######### o ### o ######### o ###########",0
+lineB db "#         # o ### o o o o o o o o o o ### o #         #",0
+lineC db "#         # o ### o #####_____##### o ### o #         #",0
+lineD db "#         # o ### o #             # o ### o #         #",0
+lineE db "########### o ### o #             # o ### o ###########",0
 lineF db "            o o o o #             # o o o o            ",0
-line10 db "########### o # # o ############### o ### o ###########",0
-line11 db "#         # o # # o o o o o o o o o o ### o #         #",0
-line12 db "#         # o # # o # # # # # # # # o ### o #         #",0
-line13 db "########### o # # o # # # # # # # # o ### o ###########",0
+line10 db "########### o ### o ############### o ### o ###########",0
+line11 db "#         # o ### o o o o o o o o o o ### o #         #",0
+line12 db "#         # o ### o ############### o ### o #         #",0
+line13 db "########### o ### o ############### o ### o ###########",0
 line14 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
 line15 db "# o ####### o ######### o ### o ######### o ####### o #",0
 line16 db "# o ####### o ######### o ### o ######### o ####### o #",0
@@ -207,7 +207,7 @@ gameloop:
 	call delay
 	call readkey
 	
-	cmp score, 310
+	cmp score, 300
 	;cmp score, 20 ;for testing purposes only
 	jge youWin
 	
@@ -281,6 +281,8 @@ quit:
 youWin:
 call clrscr
 call buildYouWin
+mov eax , 999999
+call delay
 call updateScore
 
 mainloop:
@@ -889,43 +891,43 @@ printgotoxy endp
 
 buildYouWin proc
 
-	mov dh, 17
-	mov dl, 35
+	mov dh, 12
+	mov dl, 7
 	call gotoxy
 	mov edx, offset winmsg1
 	call writestring
 	call slowdown
 
-	mov dh, 18
-	mov dl, 35
+	mov dh, 13
+	mov dl, 7
 	call gotoxy
 	mov edx, offset winmsg2
 	call writestring
 	call slowdown
 
-	mov dh, 19
-	mov dl, 35
+	mov dh, 14
+	mov dl, 7
 	call gotoxy
 	mov edx, offset winmsg3
 	call writestring
 	call slowdown
 
-	mov dh, 20
-	mov dl, 35
+	mov dh, 15
+	mov dl, 7
 	call gotoxy
 	mov edx, offset winmsg4
 	call writestring
 	call slowdown
 
-	mov dh, 21
-	mov dl, 35
+	mov dh, 16
+	mov dl, 7
 	call gotoxy
 	mov edx, offset winmsg5
 	call writestring
 	call slowdown
 
-	mov dh, 22
-	mov dl, 35
+	mov dh, 17
+	mov dl, 7
 	call gotoxy
 	mov edx, offset winmsg6
 	call writestring
@@ -994,72 +996,72 @@ buildSplashScreen proc
 	mov eax, 14
 	call settextcolor
 
-	mov dh, 17
-	mov dl, 35
+	mov dh, 12
+	mov dl, 0
 	call gotoxy
 	mov edx, offset title1
 	call writestring
 	call slowdown
-	mov dh, 18
-	mov dl, 35
+	mov dh, 13
+	mov dl, 0
 	call gotoxy
 	mov edx, offset title2
 	call writestring
 	call slowdown
-	mov dh, 19
-	mov dl, 35
+	mov dh, 14
+	mov dl, 0
 	call gotoxy
 	mov edx, offset title3
 	call writestring
 	call slowdown
-	mov dh, 20
-	mov dl, 35
+	mov dh, 15
+	mov dl, 0
 	call gotoxy
 	mov edx, offset title4
 	call writestring
 	call slowdown
-	mov dh, 21
-	mov dl, 35
+	mov dh, 16
+	mov dl, 0
 	call gotoxy
 	mov edx, offset title5
 	call writestring
 	call slowdown
-	mov dh, 22
-	mov dl, 35
+	mov dh, 17
+	mov dl, 0
 	call gotoxy
 	mov edx, offset title6
 	call writestring
 	call slowdown
-	mov dh, 23
-	mov dl, 35
+	mov dh, 18
+	mov dl, 0
 	call gotoxy
 	mov edx, offset title7
 	call writestring
 	call slowdown
 	mov eax, 13
 	call settextcolor
-	mov dh, 25
-	mov dl, 50
+	mov dh, 20
+	mov dl, 13
 	call gotoxy
 	mov edx, offset instructions1
 	call writestring
 	call slowdown
-	mov dh, 26
-	mov dl, 52
+	mov dh, 21
+	mov dl, 15
 	call gotoxy
 	mov edx, offset instructions2
 	call writestring
 	call slowdown
-	mov dh, 27
-	mov dl, 58
+	mov dh, 22
+	mov dl, 21
 	call gotoxy
 	mov edx, offset instructions3
 	call writestring
 	call slowdown
 	mov eax, 15
 	call settextcolor
-	mov dh, 28
-	mov dl, 65
+	mov dh, 23
+	mov dl, 28
 	call gotoxy
 	mov edx, offset goodluckmsg
 	call writestring
@@ -1067,30 +1069,30 @@ buildSplashScreen proc
 
 	mov eax, 14; yellow
 	call settextcolor
-	mov dh, 29
-	mov dl, 37
+	mov dh, 24
+	mov dl, 0
 	call gotoxy
 	mov edx, offset ghosts1a
 	call writestring
 	call crlf
 
 	call slowdown
-	mov dh, 30
-	mov dl, 37
+	mov dh, 25
+	mov dl, 0
 	call gotoxy
 	mov edx, offset ghosts1b
 	call writestring
 	call crlf
 	call slowdown
-	mov dh, 31
-	mov dl, 37
+	mov dh, 26
+	mov dl, 0
 	call gotoxy
 	mov edx, offset ghosts1c
 	call writestring
 	call crlf
 	call slowdown
-	mov dh, 32
-	mov dl, 37
+	mov dh, 27
+	mov dl, 0
 	call gotoxy
 	mov edx, offset ghosts1d
 	call writestring
@@ -1098,8 +1100,8 @@ buildSplashScreen proc
 
 	call slowdown
 
-	mov dh, 33
-	mov dl, 37
+	mov dh, 28
+	mov dl, 0
 	call gotoxy
 	mov edx, offset ghosts1e
 	call writestring
@@ -1108,29 +1110,29 @@ buildSplashScreen proc
 	mov eax, 13; light magenta
 	call settextcolor
 
-	mov dh, 29
-	mov dl, 57
+	mov dh, 24
+	mov dl, 20
 	call gotoxy
 	mov edx, offset ghosts2a
 	call writestring
 	call crlf
 	call slowdown
-	mov dh, 30
-	mov dl, 57
+	mov dh, 25
+	mov dl, 20
 	call gotoxy
 	mov edx, offset ghosts2b
 	call writestring
 	call crlf
 	call slowdown
-	mov dh, 31
-	mov dl, 57
+	mov dh, 26
+	mov dl, 20
 	call gotoxy
 	mov edx, offset ghosts2c
 	call writestring
 	call crlf
 	call slowdown
-	mov dh, 32
-	mov dl, 57
+	mov dh, 27
+	mov dl, 20
 	call gotoxy
 	mov edx, offset ghosts2d
 	call writestring
@@ -1138,8 +1140,8 @@ buildSplashScreen proc
 
 	call slowdown
 
-	mov dh, 33
-	mov dl, 57
+	mov dh, 28
+	mov dl, 20
 	call gotoxy
 	mov edx, offset ghosts2e
 	call writestring
@@ -1148,29 +1150,29 @@ buildSplashScreen proc
 	mov eax, 12;  light red
 	call settextcolor
 
-	mov dh, 29
-	mov dl, 77
+	mov dh, 24
+	mov dl, 40
 	call gotoxy
 	mov edx, offset ghosts3a
 	call writestring
 	call crlf
 	call slowdown
-	mov dh, 30
-	mov dl, 77
+	mov dh, 25
+	mov dl, 40
 	call gotoxy
 	mov edx, offset ghosts3b
 	call writestring
 	call crlf
 	call slowdown
-	mov dh, 31
-	mov dl, 77
+	mov dh, 26
+	mov dl, 40
 	call gotoxy
 	mov edx, offset ghosts3c
 	call writestring
 	call crlf
 	call slowdown
-	mov dh, 32
-	mov dl, 77
+	mov dh, 27
+	mov dl, 40
 	call gotoxy
 	mov edx, offset ghosts3d
 	call writestring
@@ -1178,8 +1180,8 @@ buildSplashScreen proc
 
 	call slowdown
 
-	mov dh, 33
-	mov dl, 77
+	mov dh, 28
+	mov dl, 40
 	call gotoxy
 	mov edx, offset ghosts3e
 	call writestring
@@ -1188,15 +1190,15 @@ buildSplashScreen proc
 	mov eax, 11 ; light cyan
 	call settextcolor
 	call slowdown
-	mov dh, 29
-	mov dl, 97
+	mov dh, 24
+	mov dl, 60
 	call gotoxy
 	mov edx, offset ghosts4a
 	call writestring
 	call crlf
 	call slowdown
-	mov dh, 30
-	mov dl, 97
+	mov dh, 25
+	mov dl, 60
 	call gotoxy
 	mov edx, offset ghosts4b
 	call writestring
@@ -1204,8 +1206,8 @@ buildSplashScreen proc
 
 	call slowdown
 
-	mov dh, 31
-	mov dl, 97
+	mov dh, 26
+	mov dl, 60
 	call gotoxy
 	mov edx, offset ghosts4c
 	call writestring
@@ -1213,8 +1215,8 @@ buildSplashScreen proc
 
 	call slowdown
 
-	mov dh, 32
-	mov dl, 97
+	mov dh, 27
+	mov dl, 60
 	call gotoxy
 	mov edx, offset ghosts4d
 	call writestring
@@ -1222,8 +1224,8 @@ buildSplashScreen proc
 	
 	call slowdown
 
-	mov dh, 33
-	mov dl, 97
+	mov dh, 28
+	mov dl, 60
 	call gotoxy
 	mov edx, offset ghosts4e
 	call writestring
