@@ -1,7 +1,7 @@
 TITLE andy		(arrayweek.asm)
 INCLUDE Irvine32.inc
 .data
-; board is 31X28; err now 31X56 
+; board is 31X28; err now 31X55 
 ;command console should be height=35(so gotoxy doesn't shift the console)
 ;							 width 56+scoredboard and other stuff
 winning byte 0
@@ -328,97 +328,97 @@ mov dl, 0
 call gotoxy
 call crlf
 mov edx , offset line1
-call writestring
+call writegameline
 call crlf
 mov edx , offset line2
-call writestring
+call writegameline
 call crlf
 mov edx , offset line3
-call writestring
+call writegameline
 call crlf
 mov edx , offset line4
-call writestring
+call writegameline
 call crlf
 mov edx , offset line5
-call writestring
+call writegameline
 call crlf
 mov edx , offset line6
-call writestring
+call writegameline
 call crlf
 mov edx , offset line7
-call writestring
+call writegameline
 call crlf
 mov edx , offset line8
-call writestring
+call writegameline
 call crlf
 mov edx , offset line9
-call writestring
+call writegameline
 call crlf
 mov edx , offset lineA
-call writestring
+call writegameline
 call crlf
 mov edx , offset lineB
-call writestring
+call writegameline
 call crlf
 mov edx , offset lineC
-call writestring
+call writegameline
 call crlf
 mov edx , offset lineD
-call writestring
+call writegameline
 call crlf
 mov edx , offset lineE
-call writestring
+call writegameline
 call crlf
 mov edx , offset lineF
-call writestring
+call writegameline
 call crlf
 mov edx , offset line10
-call writestring
+call writegameline
 call crlf
 mov edx , offset line11
-call writestring
+call writegameline
 call crlf
 mov edx , offset line12
-call writestring
+call writegameline
 call crlf
 mov edx , offset line13
-call writestring
+call writegameline
 call crlf
 mov edx , offset line14
-call writestring
+call writegameline
 call crlf
 mov edx , offset line15
-call writestring
+call writegameline
 call crlf
 mov edx , offset line16
-call writestring
+call writegameline
 call crlf
 mov edx , offset line17
-call writestring
+call writegameline
 call crlf
 mov edx , offset line18
-call writestring
+call writegameline
 call crlf
 mov edx , offset line19
-call writestring
+call writegameline
 call crlf
 mov edx , offset line1A
-call writestring
+call writegameline
 call crlf
 mov edx , offset line1B
-call writestring
+call writegameline
 call crlf
 mov edx , offset line1C
-call writestring
+call writegameline
 call crlf
 mov edx , offset line1D
-call writestring
+call writegameline
 call crlf
 mov edx , offset line1E
-call writestring
+call writegameline
 call crlf
 ;mov edx , offset line1F
-;call writestring
+;call writegameline
 ;call crlf
 ret
 Drawstart endp
@@ -1544,5 +1544,63 @@ slowdown ENDP
 ;
 ;DrawGhosts endp
 
+WriteGameLine PROC
+mov esi , edx
+push ecx
+push eax
+push ebx
+
+mov ecx , 55
+writegamelineloop:
+mov bl , [esi]
+cmp bl , 35
+je wallwrite
+
+cmp bl , 111
+je dotwrite
+
+cmp bl , 48
+je bigdotwrite
+
+cmp bl , 32
+je writethechar
+
+cmp bl , 95
+je wallwrite
+
+jmp writethechar
+
+wallwrite:
+mov eax , 9
+call settextcolor
+jmp writethechar
+
+dotwrite:
+mov eax , 14
+call settextcolor
+jmp writethechar
+
+bigdotwrite:
+mov eax, 10
+jmp writethechar
+
+
+
+
+
+
+writethechar:
+mov al, bl
+call writechar
+inc esi
+mov eax , 15
+call settextcolor
+loop writegamelineloop
+
+pop ebx
+pop eax
+pop ecx
+ret
+WriteGameLine endp
 
 END main
