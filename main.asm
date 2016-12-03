@@ -472,7 +472,7 @@ movpacright proc USES esi eax
 teleport:
 	add esi, pacX
 	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
-	mov al, '_'
+	mov al, ' '
 	mov [esi], al
 	call printgotoxy
 	mov pacX, 0
@@ -499,7 +499,7 @@ check:
 	mov al, PacY
 	Call setline
 	add esi, pacX
-	mov al, '_'
+	mov al, ' '
 	mov [esi], al
 	call printgotoxy
 	inc esi
@@ -536,7 +536,7 @@ movpacleft proc USES esi eax
 teleport:
 	add esi, pacX
 	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
-	mov al, '_'
+	mov al, ' '
 	mov [esi], al
 	call printgotoxy
 	mov pacX, 54
@@ -563,7 +563,7 @@ check:
 	mov al, PacY
 	Call setline
 	add esi, pacX
-	mov al, '_'
+	mov al, ' '
 	mov [esi], al
 	call printgotoxy
 	dec esi
@@ -627,7 +627,7 @@ movpacup proc USES esi eax
 	mov al, PacY
 	Call setline
 	add esi, pacX
-	mov al,'_'
+	mov al,' '
 	mov [esi], al
 	call printgotoxy
 	dec pacY
@@ -667,7 +667,7 @@ movpacdown proc USES esi eax
 	mov al, PacY
 	Call setline
 	add esi, pacX
-	mov al,'_'
+	mov al,' '
 	mov [esi], al
 	call printgotoxy
 	inc pacY
@@ -877,7 +877,7 @@ printgotoxy proc USES edx ebx
 	mov dh, 0
 	mov dl, 0
 	call gotoxy
-	cmp al, '_'			;if printing '_' don't bother with the delay
+	cmp al, ' '			;if printing '_' don't bother with the delay
 	je skipdelay
 	push eax
 	mov eax, 300
