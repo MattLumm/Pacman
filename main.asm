@@ -178,7 +178,10 @@ prevx		BYTE   11
 prevy		BYTE   16
 deltax		SBYTE  0
 deltay		SBYTE  0
+
 ghosttimer db 0
+ghosthold db 0
+ghostpreserve db ' '
 
 buffer BYTE 1000 DUP(?)
 saveBuffer BYTE 1000 DUP(?)
@@ -215,7 +218,7 @@ continuelooping:
 	jge youWin
 
 	;move ghosts here
-	call movghostrand
+	;call movghostrand
 
 	call readkey
 	cmp al,'d'
@@ -243,15 +246,19 @@ continuelooping:
 	loop gameloop
 
 right:
+	call movghostright
 	call movpacright
 	jmp gameloop
 left:
+	call movghostleft
 	call movpacleft
 	jmp gameloop
 down:
+	call movghostdown
 	call movpacdown
 	jmp gameloop
 up:
+	call movghostup
 	call movpacup
 	jmp gameloop
 quit:
@@ -1699,10 +1706,10 @@ movghostright proc USES esi eax
 	jmp check
 teleport:
 	add esi, ghostX
-	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	
 	mov al, ' '
 	mov [esi], al
-	call printgotoxy
+	call printghostblank
 	mov ghostX, 0
 	mov al, ghostY
 	call setline
@@ -1711,6 +1718,7 @@ teleport:
 	mov [esi], al
 	call printgotoxy
 	jmp collision
+	
 check:
 ;checks for collision
 	mov al, ghostY
@@ -1718,18 +1726,20 @@ check:
 	add esi, ghostX
 	inc esi
 	inc esi
-	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision
 	cmp ah, '_'
 	je collision
+	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
+	mov ghosthold, ah
 	
 	mov ghostDir, 'd'
 	mov al, ghostY
 	Call setline
 	add esi, ghostX
-	mov al, ' '
+	mov al, ghostpreserve
 	mov [esi], al
 	call printghostblank
 	inc esi
@@ -1739,6 +1749,8 @@ check:
 	mov al, 'G'
 	mov [esi], al
 	call printgotoxy
+	mov al, ghosthold
+	mov ghostpreserve, al
 collision:
 ret
 movghostright endp
@@ -1765,10 +1777,10 @@ movghostleft proc USES esi eax
 	jmp check
 teleport:
 	add esi, ghostX
-	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	
 	mov al, ' '
 	mov [esi], al
-	call printgotoxy
+	call printghostblank
 	mov ghostX, 54
 	mov al, ghostY
 	call setline
@@ -1777,6 +1789,8 @@ teleport:
 	mov [esi], al
 	call printgotoxy
 	jmp collision
+	
+
 check:
 ;checks for collision
 	mov al, ghostY
@@ -1784,18 +1798,22 @@ check:
 	add esi, ghostX
 	dec esi
 	dec esi
-	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision
 	cmp ah, '_'
 	je collision
+	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
+	mov ghosthold, ah
+
 ;moves ghostman normally
 	mov ghostDir, 'a'
+
 	mov al, ghostY
 	Call setline
 	add esi, ghostX
-	mov al, ' '
+	mov al, ghostpreserve
 	mov [esi], al
 	call printghostblank
 	dec esi
@@ -1805,6 +1823,8 @@ check:
 	mov al, 'G'
 	mov [esi], al
 	call printgotoxy
+	mov al, ghosthold
+	mov ghostpreserve, al
 collision:
 ret
 movghostleft endp
@@ -1826,18 +1846,20 @@ movghostdown proc USES esi eax
 	call setline
 	dec ghostY
 	add esi, ghostX
-	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision	
 	cmp ah, '_'
 	je collision
+	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
+	mov ghosthold, ah
 	
 	mov ghostDir, 's'
 	mov al, ghostY
 	Call setline
 	add esi, ghostX
-	mov al,' '
+	mov al, ghostpreserve
 	mov [esi], al
 	call printghostblank
 	inc ghostY
@@ -1847,6 +1869,9 @@ movghostdown proc USES esi eax
 	mov al, 'G'
 	mov [esi], al
 	call printgotoxy
+	mov al, ghosthold
+	mov ghostpreserve, al
+
 collision:
 ret
 movghostdown endp
@@ -1868,18 +1893,20 @@ movghostup proc USES esi eax
 	call setline
 	inc ghostY
 	add esi, ghostX
-	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision	
 	cmp ah, '_'
 	je collision
+	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
+	mov ghosthold, ah
 	
 	mov ghostDir, 'w'
 	mov al, ghostY
 	Call setline
 	add esi, ghostX
-	mov al,' '
+	mov al, ghostpreserve
 	mov [esi], al
 	call printghostblank
 	dec ghostY
@@ -1889,6 +1916,11 @@ movghostup proc USES esi eax
 	mov al, 'G'
 	mov [esi], al
 	call printgotoxy
+
+	mov al, ghosthold
+	mov ghostpreserve, al
+
+
 collision:
 ret
 movghostup endp
@@ -1903,7 +1935,9 @@ movghostup endp
 startghost proc USES esi eax
 ; ghost man uses G depending which direction he's heading starts heading right
 ; this will just put ghostman into the board at 12X13 aka lineC at index 14
+	mov eax, ' '
 	call printghostblank 
+	
 	mov ghostY, 11
 	;mov esi, offset lineC
 	mov al, ghostY
@@ -1912,6 +1946,7 @@ startghost proc USES esi eax
 	add esi, ghostx
 	mov al, 'G'
 	mov [esi], al
+	call printgotoxy
 	ret
 startghost endp
 
@@ -1920,9 +1955,10 @@ startghost endp
 ;takes in the ussual ghost x and ghost y and makes a blank where ghost was
 ;Needs line#, ghostX, ghostY
 ;Returns nothing
-;Uses nothing
+;Uses eax
 ;---------------------
-printghostblank proc 
+printghostblank proc uses eax 
+	;mov eax, ' '
 	mov ebx, 0
 	mov ebx, ghostx
 	mov dl, bl
