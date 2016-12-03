@@ -173,13 +173,13 @@ ghost2y db ?
 ghost3x db ?
 ghost3y db ?
 
-ghostx		dd   24
-ghosty		db   16
+;ghostx		dd   24
+;ghosty		db   16
 prevx		BYTE   11
 prevy		BYTE   16
 deltax		SBYTE  0
 deltay		SBYTE  0
-ghostdir byte 0
+;ghostdir byte 0
 
 buffer BYTE 1000 DUP(?)
 saveBuffer BYTE 1000 DUP(?)
@@ -199,6 +199,7 @@ main PROC
 	mov eax, 0
 	mov ebx, 0
 	call spawnpac
+	call spawnghost
 	call drawstart
 
 gameloop:
@@ -237,6 +238,7 @@ gameloop:
 	loop gameloop
 right:
 	call movpacright
+	call movghostright
 	jmp gameloop
 left:
 	call movpacleft
@@ -249,35 +251,6 @@ up:
 	jmp gameloop
 quit:
 	
-
-
-
-	
-	;Call movpacright
-	;Call movpacright
-	;Call movpacright
-	;Call movpacright
-	;Call movpacdown
-	;Call movpacdown
-	;Call movpacdown
-	;Call movpacdown
-	;Call movpacright
-	;Call movpacright
-	;Call movpacright
-	;Call movpacright
-	;Call movpacright
-	;Call movpacright
-	;Call movpacright
-	;Call movpacright
-	;Call movpacright
-	;Call movpacright
-	;Call movpacright
-	;
-	;
-	;call movpacleft
-	;call movpacleft
-	;call movpacleft
-
 youWin:
 call clrscr
 call buildYouWin
@@ -871,6 +844,10 @@ printgotoxy proc USES edx ebx
 ;gotoXY takes in dl:column(aka which column X), dh:row(aka which row Y)
 ;then call Gotoxy
 	
+	cmp al,'G'
+	je colorghost
+	;cmp al,' '
+	;je printpac
 	cmp al, '<'
 	je colorpac
 	cmp al, '>'
@@ -879,13 +856,19 @@ printgotoxy proc USES edx ebx
 	je colorpac
 	cmp al, 'v'
 	je colorpac
-	jmp print
+	jmp printpac
+colorghost:
+	push eax
+	mov eax, lightcyan
+	call settextcolor
+	pop eax
+	jmp printghost
 colorpac: 
 	push eax
 	mov eax, yellow
 	call settextcolor
 	pop eax
-print:
+printpac:
 	mov ebx, 0
 	mov ebx, pacX
 	mov dl, bl
@@ -894,13 +877,28 @@ print:
 	dec pacY
 	call Gotoxy
 	call writechar
+	jmp done
+printghost:
+	mov ebx, 0
+	mov ebx, ghostX
+	mov dl, bl
+	inc ghosty
+	mov dh, ghostY
+	dec ghostY
+	call Gotoxy
+	call writechar
+	jmp done
 
+
+done:
 ;calls gotoxy a 2nd time so there's no flickering ' ' cursor marker 
 ;also so that"press any key" is at the bottom of the screen.
 	mov dh, 0
 	mov dl, 0
 	call gotoxy
-	cmp al, '_'			;if printing '_' don't bother with the delay
+	cmp al, ' '			;if printing ' ' don't bother with the delay
+	je skipdelay
+	cmp al, 'G'
 	je skipdelay
 	push eax
 	mov eax, 300
@@ -1594,6 +1592,9 @@ je writethechar
 cmp bl , 95
 je wallwrite
 
+cmp bl, 'G'
+je ghostwrite
+
 jmp writethechar
 
 wallwrite:
@@ -1608,6 +1609,11 @@ jmp writethechar
 
 pacwrite:
 mov eax , 14
+call settextcolor
+jmp writethechar
+
+ghostwrite:
+mov eax, lightcyan
 call settextcolor
 jmp writethechar
 
@@ -1633,5 +1639,117 @@ pop eax
 pop ecx
 ret
 WriteGameLine endp
+
+;---------------------
+;spawnghost
+;sets up ghostX and ghostY at (28,12) also places ghostman at that location
+;Needs line#, ghostX, ghostY
+;Returns ghostX, ghostY
+;Uses esi eax
+;---------------------
+spawnghost proc USES esi eax
+; ghost man uses <, >, ^, v  depending which direction he's heading starts heading right
+.data 
+ghostX dd 0
+ghostY db 0
+ghostDir db 0
+.code
+; this will just put ghostman into the board at 12X13 aka lineC at index 14
+	mov ghostY, 14
+	;mov esi, offset lineC
+	mov al, ghostY
+	Call setline
+	mov ghostx, 26
+	add esi, ghostx
+	mov al, 'G'
+	mov [esi], al
+	ret
+spawnghost endp
+
+;---------------------
+;movghostright
+;moves ghostX up 2 and shifts the ghostman icon 2 to the right in the line index. 
+;Also replaces where ghostman was with' '. 
+;Checks for collision with '#' in two sghostes ahead and doesn't move if a wall does exist
+;Will wrap around the array if it move right from the 54 index will move to 0 index
+;Needs line#, ghostX, ghostY
+;Returns ghostX, line#
+;Uses esi eax
+;---------------------
+movghostright proc USES esi eax
+; need to check if the next spot is open or not
+; set ghostDir = 'd' to rep ghost heading right, replace ghostX, ghostY with _ to represent pellet eaten, then inc ghostX, move ghost to ghostX, ghostY 
+	
+;checks for teleport	
+	mov al, ghostY
+	call setline
+	cmp ghostX, 54
+	je teleport
+	jmp check
+teleport:
+	add esi, ghostX
+	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	mov al, ' '
+	mov [esi], al
+	call printgotoxy
+	mov ghostX, 0
+	mov al, ghostY
+	call setline
+	add esi, ghostX
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+	jmp collision
+check:
+;checks for collision
+	mov al, ghostY
+	call setline
+	add esi, ghostX
+	inc esi
+	inc esi
+	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	mov ah, [esi]
+	cmp ah, '#'
+	je collision
+	cmp ah, '_'
+	je collision
+	
+	mov ghostDir, 'd'
+	mov al, ghostY
+	Call setline
+	add esi, ghostX
+	mov al, ' '
+	mov [esi], al
+	call printgotoxy
+	inc esi
+	inc esi
+	inc ghostX
+	inc ghostX
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+collision:
+ret
+movghostright endp
+
+;---------------------
+;printblank
+;after setline and the x cord have been given it makes that point blank. used after a ghost is moved
+;Needs line#, ghostX, ghostY
+;Returns nothing
+;Uses nothing
+;---------------------
+printblank proc 
+	mov ebx, 0
+	mov ebx, ghostX
+	sub ebx,2
+	mov dl, bl
+	inc ghosty
+	mov dh, ghostY
+	dec ghostY
+	call Gotoxy
+	call writechar
+ret
+printblank endp
 
 END main
