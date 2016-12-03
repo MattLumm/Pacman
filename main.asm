@@ -173,13 +173,12 @@ ghost2y db ?
 ghost3x db ?
 ghost3y db ?
 
-;ghostx		dd   24
-;ghosty		db   16
+
 prevx		BYTE   11
 prevy		BYTE   16
 deltax		SBYTE  0
 deltay		SBYTE  0
-;ghostdir byte 0
+ghosttimer db 0
 
 buffer BYTE 1000 DUP(?)
 saveBuffer BYTE 1000 DUP(?)
@@ -203,16 +202,22 @@ main PROC
 	call drawstart
 
 gameloop:
-	;call spawnGhosts
+	
 	mov eax, 100
 	call delay
-	call readkey
-	
+	;if score = 10 spawn the ghost outside of the pen at corrdinatines 28, 12
+	cmp score, 10
+	jne continuelooping
+	call startghost
+continuelooping:
 	cmp score, 300
 	;cmp score, 20 ;for testing purposes only
 	jge youWin
-	
 
+	;move ghosts here
+	call movghostrand
+
+	call readkey
 	cmp al,'d'
 	je right
 	cmp al,'w'
@@ -236,21 +241,18 @@ gameloop:
 
 	add ecx, 1
 	loop gameloop
+
 right:
 	call movpacright
-	call movghostright
 	jmp gameloop
 left:
 	call movpacleft
-	call movghostleft
 	jmp gameloop
 down:
 	call movpacdown
-	call movghostdown
 	jmp gameloop
 up:
 	call movpacup
-	call movghostup
 	jmp gameloop
 quit:
 	
@@ -1892,6 +1894,28 @@ ret
 movghostup endp
 
 ;---------------------
+;startghost
+;sets up ghostX and ghostY at (28,12) also places ghostman at that location
+;Needs line#, ghostX, ghostY
+;Returns ghostX, ghostY
+;Uses esi eax
+;---------------------
+startghost proc USES esi eax
+; ghost man uses G depending which direction he's heading starts heading right
+; this will just put ghostman into the board at 12X13 aka lineC at index 14
+	call printghostblank 
+	mov ghostY, 11
+	;mov esi, offset lineC
+	mov al, ghostY
+	Call setline
+	mov ghostx, 28
+	add esi, ghostx
+	mov al, 'G'
+	mov [esi], al
+	ret
+startghost endp
+
+;---------------------
 ;printghostblank
 ;takes in the ussual ghost x and ghost y and makes a blank where ghost was
 ;Needs line#, ghostX, ghostY
@@ -1910,6 +1934,32 @@ printghostblank proc
 ret
 printghostblank endp
 
+movghostrand proc
+	mov eax, 5
+	call randomrange
+	cmp al, 1
+	je ghostright
+	cmp al, 2
+	je ghostleft
+	cmp al, 3
+	je ghostdown
+	cmp al, 4
+	je ghostup
+ghostright:
+	call movghostright
+	jmp ghostdone
+ghostleft:
+	call movghostleft
+	jmp ghostdone
+ghostdown:
+	call movghostdown
+	jmp ghostdone
+ghostup:
+	call movghostup
+	jmp ghostdone
 
+ghostdone:
+ret
+movghostrand endp
 
 END main
