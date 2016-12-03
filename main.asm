@@ -242,12 +242,15 @@ right:
 	jmp gameloop
 left:
 	call movpacleft
+	call movghostleft
 	jmp gameloop
 down:
 	call movpacdown
+	call movghostdown
 	jmp gameloop
 up:
 	call movpacup
+	call movghostup
 	jmp gameloop
 quit:
 	
@@ -907,6 +910,10 @@ done:
 	call delay
 	pop eax
 skipdelay:
+push eax
+mov eax, white
+call settextcolor
+pop eax
 ret
 printgotoxy endp
 
@@ -1722,7 +1729,7 @@ check:
 	add esi, ghostX
 	mov al, ' '
 	mov [esi], al
-	call printgotoxy
+	call printghostblank
 	inc esi
 	inc esi
 	inc ghostX
@@ -1735,16 +1742,165 @@ ret
 movghostright endp
 
 ;---------------------
-;printblank
-;after setline and the x cord have been given it makes that point blank. used after a ghost is moved
+;movghostleft
+;moves ghostX down 2 and shifts the ghostman icon 2 to the right in the line index. 
+;Also replaces where ghostman was with' '. 
+;Checks for collision with '#' in two sghostes ahead and doesn't move if a wall does exist
+;Will wrap around the array if ghost moves left from the 0 index will move to 54 index
+;Needs line#, ghostX, ghostY
+;Returns ghostX, line#
+;Uses esi eax
+;---------------------
+movghostleft proc USES esi eax
+; need to check if the next spot is open or not
+; set ghostDir = 'a' to rep ghost heading left, replace ghostX, ghostY with _ to represent pellet eaten, then dec ghostX, move ghost to ghostX, ghostY 
+
+;checks for teleport
+	mov al, ghostY	
+	call setline
+	cmp ghostX, 0
+	je teleport
+	jmp check
+teleport:
+	add esi, ghostX
+	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	mov al, ' '
+	mov [esi], al
+	call printgotoxy
+	mov ghostX, 54
+	mov al, ghostY
+	call setline
+	add esi, ghostX
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+	jmp collision
+check:
+;checks for collision
+	mov al, ghostY
+	call setline
+	add esi, ghostX
+	dec esi
+	dec esi
+	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	mov ah, [esi]
+	cmp ah, '#'
+	je collision
+	cmp ah, '_'
+	je collision
+;moves ghostman normally
+	mov ghostDir, 'a'
+	mov al, ghostY
+	Call setline
+	add esi, ghostX
+	mov al, ' '
+	mov [esi], al
+	call printghostblank
+	dec esi
+	dec esi
+	dec ghostX
+	dec ghostX
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+collision:
+ret
+movghostleft endp
+
+;---------------------
+;movghostdown
+;moves ghostY down 1 and shifts the ghostman icon 1 down in lines
+;Also replaces where ghostman was with' '. 
+;Checks for collision with '#' in two sghostes ahead and doesn't move if a wall does exist
+;Needs line#, ghostX, ghostY
+;Returns ghostY, line#
+;Uses esi eax
+;---------------------
+movghostdown proc USES esi eax
+; need to check if the next spot is open still
+; set ghostDir = 's' to rep ghost heading down, replace ghostX, ghostY with _, then inc ghostY, mov ghost to ghostX, ghostY
+	inc ghostY
+	mov al, ghostY
+	call setline
+	dec ghostY
+	add esi, ghostX
+	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	mov ah, [esi]
+	cmp ah, '#'
+	je collision	
+	cmp ah, '_'
+	je collision
+	
+	mov ghostDir, 's'
+	mov al, ghostY
+	Call setline
+	add esi, ghostX
+	mov al,' '
+	mov [esi], al
+	call printghostblank
+	inc ghostY
+	mov al, ghostY
+	Call setline
+	add esi, ghostX
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+collision:
+ret
+movghostdown endp
+
+;---------------------
+;movghostup
+;moves ghostY up 1 and shifts the ghostman icon 1 up in lines
+;Also replaces where ghostman was with' '. 
+;Checks for collision with '#' in two sghostes ahead and doesn't move if a wall does exist
+;Needs line#, ghostX, ghostY
+;Returns ghostY, line#
+;Uses esi eax
+;---------------------
+movghostup proc USES esi eax
+; need to check if the next spot is open still
+; set ghostDir = 'w' to rep ghost heading up, replace ghostX, ghostY with _, then dec ghostY, mov ghost to ghostX, ghostY	
+	dec ghostY
+	mov al, ghostY
+	call setline
+	inc ghostY
+	add esi, ghostX
+	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	mov ah, [esi]
+	cmp ah, '#'
+	je collision	
+	cmp ah, '_'
+	je collision
+	
+	mov ghostDir, 'w'
+	mov al, ghostY
+	Call setline
+	add esi, ghostX
+	mov al,' '
+	mov [esi], al
+	call printghostblank
+	dec ghostY
+	mov al, ghostY
+	Call setline
+	add esi, ghostX
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+collision:
+ret
+movghostup endp
+
+;---------------------
+;printghostblank
+;takes in the ussual ghost x and ghost y and makes a blank where ghost was
 ;Needs line#, ghostX, ghostY
 ;Returns nothing
 ;Uses nothing
 ;---------------------
-printblank proc 
+printghostblank proc 
 	mov ebx, 0
-	mov ebx, ghostX
-	sub ebx,2
+	mov ebx, ghostx
 	mov dl, bl
 	inc ghosty
 	mov dh, ghostY
@@ -1752,6 +1908,8 @@ printblank proc
 	call Gotoxy
 	call writechar
 ret
-printblank endp
+printghostblank endp
+
+
 
 END main
