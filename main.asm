@@ -900,7 +900,7 @@ print:
 	mov dh, 0
 	mov dl, 0
 	call gotoxy
-	cmp al, ' '			;if printing ' ' don't bother with the delay
+	cmp al, '_'			;if printing '_' don't bother with the delay
 	je skipdelay
 	push eax
 	mov eax, 300
