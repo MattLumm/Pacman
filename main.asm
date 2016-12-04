@@ -210,7 +210,7 @@ temploc byte ?
 .code
 main PROC
 	call randomize
-	;call buildSplashScreen
+	call buildSplashScreen
 	call readchar
 	cmp al, 20h
 	je startGame
@@ -1045,7 +1045,7 @@ buildYouWin proc
 	mov eax, 14
 	call settextcolor
 
-	mov eax , 200
+	mov eax , 2000
 	call delay
 	mov dh, 5
 	mov dl, 3
@@ -1071,7 +1071,7 @@ buildYouWin proc
 	mov edx, offset fireworks4
 	call writestring
 
-	mov eax , 100
+	mov eax , 500
 	call delay
 
 	mov dh, 2
@@ -1098,7 +1098,7 @@ buildYouWin proc
 	mov edx, offset fireworks4
 	call writestring
 
-	mov eax , 50
+	mov eax , 750
 	call delay
 
 	mov dh, 7
@@ -1125,7 +1125,7 @@ buildYouWin proc
 	mov edx, offset fireworks4
 	call writestring
 
-	mov eax , 100
+	mov eax , 750
 	call delay
 
 	mov dh, 20
@@ -1152,7 +1152,7 @@ buildYouWin proc
 	mov edx, offset fireworks4
 	call writestring
 
-	mov eax , 75
+	mov eax , 750
 	call delay
 
 	mov dh, 19
@@ -1179,7 +1179,7 @@ buildYouWin proc
 	 mov edx, offset fireworks4
 	 call writestring
 
-	 mov eax , 100
+	 mov eax , 750
 	 call delay
 
 	 mov dh, 22
