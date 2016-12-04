@@ -117,13 +117,13 @@ title5 db " ##        ######### ##                     ##     ## ######### ##  #
 title6 db " ##        ##     ## ##    ##               ##     ## ##     ## ##   ###",0
 title7 db " ##        ##     ##  ######                ##     ## ##     ## ##    ##",0
 
-endmsg1 db " ######      ###    ##     ## ########     #######  ##     ## ######## ########", 0
-endmsg2 db "##    ##    ## ##   ###   ### ##          ##     ## ##     ## ##       ##     ##",0
-endmsg3 db "##         ##   ##  #### #### ##          ##     ## ##     ## ##       ##     ##", 0
-endmsg4 db "##   #### ##     ## ## ### ## ######      ##     ## ##     ## ######   ########", 0
-endmsg5 db "##    ##  ######### ##     ## ##          ##     ##  ##   ##  ##       ##   ##", 0
-endmsg6 db "##    ##  ##     ## ##     ## ##          ##     ##   ## ##   ##       ##    ##", 0
-endmsg7 db " ######   ##     ## ##     ## ########     #######     ###    ######## ##     ##", 0
+endmsg1 db "  #####                          #######                      ", 0
+endmsg2 db " #     #   ##   #    # ######    #     # #    # ###### #####  ",0
+endmsg3 db " #        #  #  ##  ## #         #     # #    # #      #    # ", 0
+endmsg4 db " #  #### #    # # ## # #####     #     # #    # #####  #    # ", 0
+endmsg5 db " #     # ###### #    # #         #     # #    # #      #####  ", 0
+endmsg6 db " #     # #    # #    # #         #     #  #  #  #      #   #  ", 0
+endmsg7 db "  #####  #    # #    # ######    #######   ##   ###### #    # ", 0
 
 winmsg1 db "__     ______  _    _  __          _______ _   _   _ ", 0
 winmsg2 db "\ \   / / __ \| |  | | \ \        / /_   _| \ | | | |", 0
@@ -942,42 +942,42 @@ printgotoxy endp
 buildYouWin proc
 
 	mov dh, 12
-	mov dl, 7
+	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg1
 	call writestring
 	call slowdown
 
 	mov dh, 13
-	mov dl, 7
+	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg2
 	call writestring
 	call slowdown
 
 	mov dh, 14
-	mov dl, 7
+	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg3
 	call writestring
 	call slowdown
 
 	mov dh, 15
-	mov dl, 7
+	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg4
 	call writestring
 	call slowdown
 
 	mov dh, 16
-	mov dl, 7
+	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg5
 	call writestring
 	call slowdown
 
 	mov dh, 17
-	mov dl, 7
+	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg6
 	call writestring
@@ -989,50 +989,50 @@ buildYouWin endp
 
 buildGameOver proc
 
-	mov dh, 17
-	mov dl, 35
+	mov dh, 12
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg1
 	call writestring
 	call slowdown
 
-	mov dh, 18
-	mov dl, 35
+	mov dh, 13
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg2
 	call writestring
 	call slowdown
 
-	mov dh, 19
-	mov dl, 35
+	mov dh, 14
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg3
 	call writestring
 	call slowdown
 
-	mov dh, 20
-	mov dl, 35
+	mov dh, 15
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg4
 	call writestring
 	call slowdown
 
-	mov dh, 21
-	mov dl, 35
+	mov dh, 16
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg5
 	call writestring
 	call slowdown
 
-	mov dh, 22
-	mov dl, 35
+	mov dh, 17
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg6
 	call writestring
 	call slowdown
 
-	mov dh, 23
-	mov dl, 35
+	mov dh, 18
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg7
 	call writestring
