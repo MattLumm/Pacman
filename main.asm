@@ -302,6 +302,15 @@ dec al
 mov lives , al
 mov al , 0
 mov dead , al
+mov ax , score
+cmp ax , 50
+jle setscorezero
+sub ax , 50
+jmp con
+setscorezero:
+mov ax , 0
+con:
+mov score , ax
 cmp lives , 0
 je youLose
 call updatelives
