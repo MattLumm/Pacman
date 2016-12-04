@@ -227,7 +227,7 @@ main PROC
 
 gameloop:
 	
-	mov eax, 100
+	mov eax, 200
 	call delay
 	;if score = 10 spawn the ghost outside of the pen at corrdinatines 28, 12
 	cmp dotseaten, 10
@@ -252,7 +252,7 @@ continuelooping:
 	je down
 	cmp dx,VK_ESCAPE
 	je quit
-
+automove:
 	mov al, pacdir
 	cmp al,'d'
 	je right
@@ -269,18 +269,26 @@ continuelooping:
 right:
 	;call movghostright
 	call movpacright
+	cmp paccol, 1
+	;je automove
 	jmp gameloop
 left:
 	;call movghostleft
 	call movpacleft
+	cmp paccol, 1
+	;je automove
 	jmp gameloop
 down:
 	;call movghostdown
 	call movpacdown
+	cmp paccol, 1
+	;je automove
 	jmp gameloop
 up:
 	;call movghostup
 	call movpacup
+	cmp paccol, 1
+	;je automove
 	jmp gameloop
 quit:
 
@@ -467,14 +475,15 @@ spawnpac proc USES esi eax
 .data 
 pacX dd 0
 pacY db 0
-pacDir db 0
+pacDir db 'd'
+pacCol db 0
 .code
 ; this will just put pacman into the board at 12X13 aka lineC at index 14
 	mov pacY, 11
 	;mov esi, offset lineC
 	mov al, PacY
 	Call setline
-	mov pacx, 28
+	mov pacx, 26
 	add esi, pacx
 	mov al, '<'
 	mov [esi], al
@@ -494,6 +503,8 @@ spawnpac endp
 movpacright proc USES esi eax
 ; need to check if the next spot is open or not
 ; set pacDir = 'd' to rep pac heading right, replace pacX, pacY with _ to represent pellet eaten, then inc pacX, move pac to pacX, pacY 
+
+	mov paccol, 0
 	
 ;checks for teleport	
 	mov al, PacY
@@ -514,7 +525,7 @@ teleport:
 	mov al, '<'
 	mov [esi], al
 	call printgotoxy
-	jmp collision
+	jmp done
 check:
 ;checks for collision
 	mov al, PacY
@@ -543,7 +554,10 @@ check:
 	mov al, '<'
 	mov [esi], al
 	call printgotoxy
+	jmp done
 collision:
+	mov paccol, 1
+done:
 ret
 movpacright endp
 
@@ -560,6 +574,8 @@ movpacright endp
 movpacleft proc USES esi eax
 ; need to check if the next spot is open or not
 ; set pacDir = 'a' to rep pac heading left, replace pacX, pacY with _ to represent pellet eaten, then dec pacX, move pac to pacX, pacY 
+
+	mov paccol, 0
 
 ;checks for teleport
 	mov al, PacY	
@@ -580,7 +596,7 @@ teleport:
 	mov al, '>'
 	mov [esi], al
 	call printgotoxy
-	jmp collision
+	jmp done
 check:
 ;checks for collision
 	mov al, PacY
@@ -609,7 +625,10 @@ check:
 	mov al, '>'
 	mov [esi], al
 	call printgotoxy
+	jmp done
 collision:
+	mov paccol, 1
+done:
 ret
 movpacleft endp
 
@@ -656,6 +675,9 @@ checkdot endp
 movpacup proc USES esi eax
 ; need to check if the next spot is open still
 ; set pacDir = 'w' to rep pac heading up, replace pacX, pacY with _, then dec pacY, mov pac to pacX, pacY	
+	
+	mov paccol, 0
+	
 	dec pacY
 	mov al, PacY
 	call setline
@@ -682,7 +704,10 @@ movpacup proc USES esi eax
 	mov al, 'v'
 	mov [esi], al
 	call printgotoxy
+	jmp done
 collision:
+	mov paccol, 1
+done:
 ret
 movpacup endp
 
@@ -698,6 +723,9 @@ movpacup endp
 movpacdown proc USES esi eax
 ; need to check if the next spot is open still
 ; set pacDir = 's' to rep pac heading down, replace pacX, pacY with _, then inc pacY, mov pac to pacX, pacY
+	
+	mov paccol,0
+	
 	inc pacY
 	mov al, PacY
 	call setline
@@ -724,7 +752,10 @@ movpacdown proc USES esi eax
 	mov al, '^'
 	mov [esi], al
 	call printgotoxy
+	jmp done
 collision:
+	mov paccol,1
+done:
 ret
 movpacdown endp
 
@@ -925,7 +956,7 @@ printgotoxy proc USES edx ebx
 	jmp printpac
 colorghost:
 	push eax
-	mov eax, lightcyan
+	mov eax, lightgreen
 	call settextcolor
 	pop eax
 	jmp printghost
@@ -968,7 +999,7 @@ done:
 	je skipdelay
 	push eax
 	mov eax, 300
-	call delay
+	;call delay
 	pop eax
 skipdelay:
 push eax
@@ -2095,7 +2126,7 @@ call settextcolor
 jmp writethechar
 
 ghostwrite:
-mov eax, lightcyan
+mov eax, lightgreen
 call settextcolor
 jmp writethechar
 
@@ -2510,5 +2541,10 @@ updatelives PROC USES edx eax
 	call writedec
 	ret
 updatelives endp
+
+movpac proc
+
+ret
+movpac endp
 
 END main
