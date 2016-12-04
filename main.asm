@@ -5,6 +5,7 @@ INCLUDE Irvine32.inc
 ;command console should be height=35(so gotoxy doesn't shift the console)
 ;							 width 56+scoredboard and other stuff
 winning byte 0
+dead byte 0
 score word 0
 line1 db "#######################################################",0
 line2 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
@@ -214,9 +215,9 @@ gameloop:
 	call startghost
 continuelooping:
 	cmp score, 300
-	;cmp score, 20 ;for testing purposes only
 	jge youWin
-
+	cmp dead, 1
+	je youLose
 	;move ghosts here
 	;call movghostrand
 
@@ -269,13 +270,20 @@ call buildYouWin
 mov eax , 999999
 call delay
 call updateScore
+jmp gameend
 
-mainloop:
-	call drawdots
-	call drawpac
-	call updatedots
-	call input
-	cmp winning, 0
+youLose:
+call clrscr
+call buildGameOver
+
+gameend:
+
+;mainloop:
+;	call drawdots
+;	call drawpac
+;	call updatedots
+;	call input
+;	cmp winning, 0
 ;	je mainloop
 exit
 main ENDP
@@ -579,12 +587,17 @@ checkdot proc USES eax
 	je islittledot
 	cmp ah, '0'
 	je isbigdot
+	cmp ah, 'G'
+	je isghost
 	jmp nodot
 	islittledot:
 	inc score
 	jmp nodot
 	isbigdot:
 	add score, 5
+	jmp nodot
+	isghost:
+	mov dead, 1
 	nodot:
 	;cmp score, 310
 	;jge youWin
