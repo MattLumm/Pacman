@@ -193,6 +193,7 @@ deltay		SBYTE  0
 ghosttimer db 0
 ghosthold db 0
 ghostpreserve db ' '
+ghostcol db 0
 
 buffer BYTE 1000 DUP(?)
 saveBuffer BYTE 1000 DUP(?)
@@ -230,7 +231,7 @@ continuelooping:
 	cmp dead, 1
 	je LoseLife
 	;move ghosts here
-	;call movghostrand
+	call movghostrand
 
 	call readkey
 	cmp al,'d'
@@ -258,19 +259,19 @@ continuelooping:
 	loop gameloop
 
 right:
-	call movghostright
+	;call movghostright
 	call movpacright
 	jmp gameloop
 left:
-	call movghostleft
+	;call movghostleft
 	call movpacleft
 	jmp gameloop
 down:
-	call movghostdown
+	;call movghostdown
 	call movpacdown
 	jmp gameloop
 up:
-	call movghostup
+	;call movghostup
 	call movpacup
 	jmp gameloop
 quit:
@@ -1931,7 +1932,7 @@ spawnghost proc USES esi eax
 .data 
 ghostX dd 0
 ghostY db 0
-ghostDir db 0
+ghostDir db 'd'
 .code
 ; this will just put ghostman into the board at 12X13 aka lineC at index 14
 	mov ghostY, 14
@@ -1959,6 +1960,9 @@ movghostright proc USES esi eax
 ; need to check if the next spot is open or not
 ; set ghostDir = 'd' to rep ghost heading right, replace ghostX, ghostY with _ to represent pellet eaten, then inc ghostX, move ghost to ghostX, ghostY 
 	
+	;set thing to 0 for ghost collisions
+	mov ghostcol, 0
+
 ;checks for teleport	
 	mov al, ghostY
 	call setline
@@ -1978,7 +1982,7 @@ teleport:
 	mov al, 'G'
 	mov [esi], al
 	call printgotoxy
-	jmp collision
+	jmp done
 	
 check:
 ;checks for collision
@@ -2012,7 +2016,10 @@ check:
 	call printgotoxy
 	mov al, ghosthold
 	mov ghostpreserve, al
+	jmp done
 collision:
+	mov ghostcol, 1
+done:
 ret
 movghostright endp
 
@@ -2029,6 +2036,8 @@ movghostright endp
 movghostleft proc USES esi eax
 ; need to check if the next spot is open or not
 ; set ghostDir = 'a' to rep ghost heading left, replace ghostX, ghostY with _ to represent pellet eaten, then dec ghostX, move ghost to ghostX, ghostY 
+
+	mov ghostcol, 0
 
 ;checks for teleport
 	mov al, ghostY	
@@ -2049,7 +2058,7 @@ teleport:
 	mov al, 'G'
 	mov [esi], al
 	call printgotoxy
-	jmp collision
+	jmp done
 	
 
 check:
@@ -2086,7 +2095,10 @@ check:
 	call printgotoxy
 	mov al, ghosthold
 	mov ghostpreserve, al
+	jmp done
 collision:
+	mov ghostcol, 1
+done:
 ret
 movghostleft endp
 
@@ -2102,6 +2114,9 @@ movghostleft endp
 movghostdown proc USES esi eax
 ; need to check if the next spot is open still
 ; set ghostDir = 's' to rep ghost heading down, replace ghostX, ghostY with _, then inc ghostY, mov ghost to ghostX, ghostY
+	
+	mov ghostcol, 0
+	
 	inc ghostY
 	mov al, ghostY
 	call setline
@@ -2132,8 +2147,11 @@ movghostdown proc USES esi eax
 	call printgotoxy
 	mov al, ghosthold
 	mov ghostpreserve, al
-
+	jmp done
 collision:
+	mov ghostcol, 1
+done:
+
 ret
 movghostdown endp
 
@@ -2149,6 +2167,9 @@ movghostdown endp
 movghostup proc USES esi eax
 ; need to check if the next spot is open still
 ; set ghostDir = 'w' to rep ghost heading up, replace ghostX, ghostY with _, then dec ghostY, mov ghost to ghostX, ghostY	
+	
+	mov ghostcol, 0
+
 	dec ghostY
 	mov al, ghostY
 	call setline
@@ -2183,6 +2204,8 @@ movghostup proc USES esi eax
 
 
 collision:
+	mov ghostcol, 1
+done:
 ret
 movghostup endp
 
@@ -2232,7 +2255,8 @@ ret
 printghostblank endp
 
 movghostrand proc
-	mov eax, 5
+doitagain:
+	mov eax, 16
 	call randomrange
 	cmp al, 1
 	je ghostright
@@ -2242,6 +2266,16 @@ movghostrand proc
 	je ghostdown
 	cmp al, 4
 	je ghostup
+	; if not 1-4 keep same direction
+	;need to add a check if hitting wall to just recall this thing
+	cmp ghostdir, 'd'
+	je ghostright
+	cmp ghostdir, 'w'
+	je ghostup
+	cmp ghostdir, 'a'
+	je ghostleft
+	cmp ghostdir, 's'
+	je ghostdown
 ghostright:
 	call movghostright
 	jmp ghostdone
@@ -2256,6 +2290,10 @@ ghostup:
 	jmp ghostdone
 
 ghostdone:
+	;if ghostcol = 1 do it again
+	cmp ghostcol, 1
+	je doitagain
+
 ret
 movghostrand endp
 
