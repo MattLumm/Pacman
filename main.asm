@@ -19,16 +19,16 @@ line7 db "# o ####### o ### o ############### o ### o ####### o #",0
 line8 db "# o ####### o ### o ############### o ### o ####### o #",0
 ;line9 db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
 line9 db "# o o o o o o ### o o o o ### o o o o ### o o o o o o #",0
-lineA db "########### o ######### o ### o ######### o ###########",0
-lineB db "#         # o ### o o o o o o o o o o ### o #         #",0
-lineC db "#         # o ### o #####_____##### o ### o #         #",0
-lineD db "#         # o ### o #             # o ### o #         #",0
-lineE db "########### o ### o #             # o ### o ###########",0
-lineF db "            o o o o #             # o o o o            ",0
-line10 db "########### o ### o ############### o ### o ###########",0
-line11 db "#         # o ### o o o o o o o o o o ### o #         #",0
-line12 db "#         # o ### o ############### o ### o #         #",0
-line13 db "########### o ### o ############### o ### o ###########",0
+lineA db "########### o #########   ###   ######### o ###########",0
+lineB db "#         # o ###                     ### o #         #",0
+lineC db "#         # o ###   #####_____#####   ### o #         #",0
+lineD db "#         # o ###   #             #   ### o #         #",0
+lineE db "########### o ###   #             #   ### o ###########",0
+lineF db "            o       #             #       o            ",0
+line10 db "########### o ###   ###############   ### o ###########",0
+line11 db "#         # o ###                     ### o #         #",0
+line12 db "#         # o ###   ###############   ### o #         #",0
+line13 db "########### o ###   ###############   ### o ###########",0
 line14 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
 line15 db "# o ####### o ######### o ### o ######### o ####### o #",0
 line16 db "# o ####### o ######### o ### o ######### o ####### o #",0
@@ -234,7 +234,7 @@ gameloop:
 	jne continuelooping
 	call startghost
 continuelooping:
-	cmp dotseaten, 300
+	cmp dotseaten, 261
 	jge youWin
 	cmp dead, 1
 	je LoseLife
