@@ -40,7 +40,8 @@ line1B db "# o ################### o ### o ################### o #",0
 line1C db "# o ################### o ### o ################### o #",0
 line1D db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
 line1E db "#######################################################",0
-line20 db "|    Score:", 0
+line20 db "|  Score:", 0
+line21 db "|  Lives:",0
 
 
 CaseTable BYTE 1 ; lookup Value
@@ -221,6 +222,7 @@ main PROC
 	call spawnghost
 	call drawstart
 	call drawborder
+	call updatelives
 
 gameloop:
 	
@@ -2459,12 +2461,16 @@ ghostdone:
 ret
 movghostrand endp
 
-updatelives PROC
-
-
-
-
-ret
+updatelives PROC USES edx eax
+	mov dh, 11
+	mov dl, 57
+	call gotoxy
+	mov edx, offset line21
+	call writestring
+	mov eax, 0
+	mov al, lives
+	call writedec
+	ret
 updatelives endp
 
 END main
