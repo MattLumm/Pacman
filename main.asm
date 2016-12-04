@@ -6,7 +6,7 @@ INCLUDE Irvine32.inc
 ;							 width 56+scoredboard and other stuff
 winning byte 0
 dead byte 0
-score word 0
+score word 1
 line1 db "#######################################################",0
 line2 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
 line3 db "# o ####### o ######### o ### o ######### o ####### o #",0
@@ -133,9 +133,9 @@ winmsg4 db "  \   /| |  | | |  | |   \ \/  \/ /   | | | . ` | | |", 0
 winmsg5 db "   | | | |__| | |__| |    \  /\  /   _| |_| |\  | |_|", 0
 winmsg6 db "   |_|  \____/ \____/      \/  \/   |_____|_| \_| (_)", 0
 
-border1 db "-----------------", 0
-bordersides db "|               |", 0
-border30 db "-----------------", 0
+border1 db "---------------", 0
+bordersides db "|             |", 0
+border30 db "---------------", 0
 side db "|",0
 
 row db 2;
@@ -284,6 +284,8 @@ jmp gameend
 youLose:
 call clrscr
 call buildGameOver
+mov eax , 999999
+call delay
 
 gameend:
 
@@ -864,7 +866,7 @@ updatescore proc USES edx eax
 	call writestring
 	mov eax, 0
 	mov ax, score
-	call writeint
+	call writedec
 	ret
 updatescore endp
 ;---------------------
@@ -1364,7 +1366,7 @@ inc row
 
 
 mov dh, row
-mov dl, 73
+mov dl, 71
 call gotoxy
 mov edx, offset side
 call writestring
