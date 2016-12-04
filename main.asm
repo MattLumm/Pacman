@@ -7,6 +7,7 @@ INCLUDE Irvine32.inc
 winning byte 0
 dead byte 0
 score word 1
+dotseaten word 1
 line1 db "#######################################################",0
 line2 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
 line3 db "# o ####### o ######### o ### o ######### o ####### o #",0
@@ -219,11 +220,11 @@ gameloop:
 	mov eax, 100
 	call delay
 	;if score = 10 spawn the ghost outside of the pen at corrdinatines 28, 12
-	cmp score, 10
+	cmp dotseaten, 10
 	jne continuelooping
 	call startghost
 continuelooping:
-	cmp score, 300
+	cmp dotseaten, 300
 	jge youWin
 	cmp dead, 1
 	je youLose
@@ -603,9 +604,11 @@ checkdot proc USES eax
 	jmp nodot
 	islittledot:
 	inc score
+	inc dotseaten
 	jmp nodot
 	isbigdot:
 	add score, 5
+	add dotseaten , 5
 	jmp nodot
 	isghost:
 	mov dead, 1
