@@ -37,7 +37,8 @@ line1B db "# o ################### o ### o ################### o #",0
 line1C db "# o ################### o ### o ################### o #",0
 line1D db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
 line1E db "#######################################################",0
-line20 db "Score: ", 0
+line20 db "|   Score:", 0
+
 
 CaseTable BYTE 1 ; lookup Value
 	DWORD Process_1 ;address of procedure
@@ -131,6 +132,13 @@ winmsg4 db "  \   /| |  | | |  | |   \ \/  \/ /   | | | . ` | | |", 0
 winmsg5 db "   | | | |__| | |__| |    \  /\  /   _| |_| |\  | |_|", 0
 winmsg6 db "   |_|  \____/ \____/      \/  \/   |_____|_| \_| (_)", 0
 
+border1 db "-----------------", 0
+bordersides db "|               |", 0
+border30 db "-----------------", 0
+side db "|",0
+
+row db 2;
+
 ghosts1a db " ###", 0
 ghosts1b db "#0#0#", 0
 ghosts1c db "#####", 0
@@ -201,6 +209,7 @@ main PROC
 	call spawnpac
 	call spawnghost
 	call drawstart
+	call drawborder
 
 gameloop:
 	;call spawnGhosts
@@ -294,7 +303,7 @@ updatedots endp
 
 Drawstart Proc uses eax
 	mov dh, 10
-	mov dl, 60
+	mov dl, 57
 	call gotoxy
 mov edx, offset line20
 call writestring
@@ -827,7 +836,7 @@ Process_30 ENDP
 ;-------
 updatescore proc USES edx eax
 	mov dh, 10
-	mov dl, 60
+	mov dl, 57
 	call gotoxy
 	mov edx, offset line20
 	call writestring
@@ -1272,6 +1281,224 @@ slowdown PROC
 	pop  eax
 	ret
 slowdown ENDP
+
+drawborder proc
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset border1
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+
+mov dh, row
+mov dl, 73
+call gotoxy
+mov edx, offset side
+call writestring
+inc row
+
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset bordersides
+call writestring
+inc row
+
+
+mov dh, row
+mov dl, 57
+call gotoxy
+mov edx, offset border30
+call writestring
+
+
+
+ret
+drawborder endp
 
 ;spawnGhosts proc 
 ;	call getDirection
