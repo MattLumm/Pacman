@@ -1036,6 +1036,8 @@ buildYouWin proc
 	mov eax, 14
 	call settextcolor
 
+	mov eax , 200
+	call delay
 	mov dh, 5
 	mov dl, 3
 	call gotoxy
@@ -1059,6 +1061,9 @@ buildYouWin proc
 	call gotoxy
 	mov edx, offset fireworks4
 	call writestring
+
+	mov eax , 100
+	call delay
 
 	mov dh, 2
 	mov dl, 27
@@ -1084,6 +1089,9 @@ buildYouWin proc
 	mov edx, offset fireworks4
 	call writestring
 
+	mov eax , 50
+	call delay
+
 	mov dh, 7
 	mov dl, 50
 	call gotoxy
@@ -1107,6 +1115,9 @@ buildYouWin proc
 	call gotoxy
 	mov edx, offset fireworks4
 	call writestring
+
+	mov eax , 100
+	call delay
 
 	mov dh, 20
 	mov dl, 60
@@ -1132,6 +1143,9 @@ buildYouWin proc
 	mov edx, offset fireworks4
 	call writestring
 
+	mov eax , 75
+	call delay
+
 	mov dh, 19
 	mov dl, 24
 	call gotoxy
@@ -1155,6 +1169,9 @@ buildYouWin proc
 	 call gotoxy
 	 mov edx, offset fireworks4
 	 call writestring
+
+	 mov eax , 100
+	 call delay
 
 	 mov dh, 22
 	 mov dl, 9
