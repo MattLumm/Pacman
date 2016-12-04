@@ -5,6 +5,7 @@ INCLUDE Irvine32.inc
 ;command console should be height=35(so gotoxy doesn't shift the console)
 ;							 width 56+scoredboard and other stuff
 winning byte 0
+dead byte 0
 score word 0
 line1 db "#######################################################",0
 line2 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
@@ -117,13 +118,13 @@ title5 db " ##        ######### ##                     ##     ## ######### ##  #
 title6 db " ##        ##     ## ##    ##               ##     ## ##     ## ##   ###",0
 title7 db " ##        ##     ##  ######                ##     ## ##     ## ##    ##",0
 
-endmsg1 db " ######      ###    ##     ## ########     #######  ##     ## ######## ########", 0
-endmsg2 db "##    ##    ## ##   ###   ### ##          ##     ## ##     ## ##       ##     ##",0
-endmsg3 db "##         ##   ##  #### #### ##          ##     ## ##     ## ##       ##     ##", 0
-endmsg4 db "##   #### ##     ## ## ### ## ######      ##     ## ##     ## ######   ########", 0
-endmsg5 db "##    ##  ######### ##     ## ##          ##     ##  ##   ##  ##       ##   ##", 0
-endmsg6 db "##    ##  ##     ## ##     ## ##          ##     ##   ## ##   ##       ##    ##", 0
-endmsg7 db " ######   ##     ## ##     ## ########     #######     ###    ######## ##     ##", 0
+endmsg1 db "  #####                          #######                      ", 0
+endmsg2 db " #     #   ##   #    # ######    #     # #    # ###### #####  ",0
+endmsg3 db " #        #  #  ##  ## #         #     # #    # #      #    # ", 0
+endmsg4 db " #  #### #    # # ## # #####     #     # #    # #####  #    # ", 0
+endmsg5 db " #     # ###### #    # #         #     # #    # #      #####  ", 0
+endmsg6 db " #     # #    # #    # #         #     #  #  #  #      #   #  ", 0
+endmsg7 db "  #####  #    # #    # ######    #######   ##   ###### #    # ", 0
 
 winmsg1 db "__     ______  _    _  __          _______ _   _   _ ", 0
 winmsg2 db "\ \   / / __ \| |  | | \ \        / /_   _| \ | | | |", 0
@@ -181,13 +182,15 @@ ghost2y db ?
 ghost3x db ?
 ghost3y db ?
 
-;ghostx		dd   24
-;ghosty		db   16
+
 prevx		BYTE   11
 prevy		BYTE   16
 deltax		SBYTE  0
 deltay		SBYTE  0
-;ghostdir byte 0
+
+ghosttimer db 0
+ghosthold db 0
+ghostpreserve db ' '
 
 buffer BYTE 1000 DUP(?)
 saveBuffer BYTE 1000 DUP(?)
@@ -212,16 +215,22 @@ main PROC
 	call drawborder
 
 gameloop:
-	;call spawnGhosts
+	
 	mov eax, 100
 	call delay
-	call readkey
-	
+	;if score = 10 spawn the ghost outside of the pen at corrdinatines 28, 12
+	cmp score, 10
+	jne continuelooping
+	call startghost
+continuelooping:
 	cmp score, 300
-	;cmp score, 20 ;for testing purposes only
 	jge youWin
-	
+	cmp dead, 1
+	je youLose
+	;move ghosts here
+	;call movghostrand
 
+	call readkey
 	cmp al,'d'
 	je right
 	cmp al,'w'
@@ -245,21 +254,22 @@ gameloop:
 
 	add ecx, 1
 	loop gameloop
+
 right:
-	call movpacright
 	call movghostright
+	call movpacright
 	jmp gameloop
 left:
-	call movpacleft
 	call movghostleft
+	call movpacleft
 	jmp gameloop
 down:
-	call movpacdown
 	call movghostdown
+	call movpacdown
 	jmp gameloop
 up:
-	call movpacup
 	call movghostup
+	call movpacup
 	jmp gameloop
 quit:
 	
@@ -269,13 +279,20 @@ call buildYouWin
 mov eax , 999999
 call delay
 call updateScore
+jmp gameend
 
-mainloop:
-	call drawdots
-	call drawpac
-	call updatedots
-	call input
-	cmp winning, 0
+youLose:
+call clrscr
+call buildGameOver
+
+gameend:
+
+;mainloop:
+;	call drawdots
+;	call drawpac
+;	call updatedots
+;	call input
+;	cmp winning, 0
 ;	je mainloop
 exit
 main ENDP
@@ -579,12 +596,17 @@ checkdot proc USES eax
 	je islittledot
 	cmp ah, '0'
 	je isbigdot
+	cmp ah, 'G'
+	je isghost
 	jmp nodot
 	islittledot:
 	inc score
 	jmp nodot
 	isbigdot:
 	add score, 5
+	jmp nodot
+	isghost:
+	mov dead, 1
 	nodot:
 	;cmp score, 310
 	;jge youWin
@@ -929,42 +951,42 @@ printgotoxy endp
 buildYouWin proc
 
 	mov dh, 12
-	mov dl, 7
+	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg1
 	call writestring
 	call slowdown
 
 	mov dh, 13
-	mov dl, 7
+	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg2
 	call writestring
 	call slowdown
 
 	mov dh, 14
-	mov dl, 7
+	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg3
 	call writestring
 	call slowdown
 
 	mov dh, 15
-	mov dl, 7
+	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg4
 	call writestring
 	call slowdown
 
 	mov dh, 16
-	mov dl, 7
+	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg5
 	call writestring
 	call slowdown
 
 	mov dh, 17
-	mov dl, 7
+	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg6
 	call writestring
@@ -976,50 +998,50 @@ buildYouWin endp
 
 buildGameOver proc
 
-	mov dh, 17
-	mov dl, 35
+	mov dh, 12
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg1
 	call writestring
 	call slowdown
 
-	mov dh, 18
-	mov dl, 35
+	mov dh, 13
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg2
 	call writestring
 	call slowdown
 
-	mov dh, 19
-	mov dl, 35
+	mov dh, 14
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg3
 	call writestring
 	call slowdown
 
-	mov dh, 20
-	mov dl, 35
+	mov dh, 15
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg4
 	call writestring
 	call slowdown
 
-	mov dh, 21
-	mov dl, 35
+	mov dh, 16
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg5
 	call writestring
 	call slowdown
 
-	mov dh, 22
-	mov dl, 35
+	mov dh, 17
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg6
 	call writestring
 	call slowdown
 
-	mov dh, 23
-	mov dl, 35
+	mov dh, 18
+	mov dl, 1
 	call gotoxy
 	mov edx, offset endmsg7
 	call writestring
@@ -1924,10 +1946,10 @@ movghostright proc USES esi eax
 	jmp check
 teleport:
 	add esi, ghostX
-	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	
 	mov al, ' '
 	mov [esi], al
-	call printgotoxy
+	call printghostblank
 	mov ghostX, 0
 	mov al, ghostY
 	call setline
@@ -1936,6 +1958,7 @@ teleport:
 	mov [esi], al
 	call printgotoxy
 	jmp collision
+	
 check:
 ;checks for collision
 	mov al, ghostY
@@ -1943,18 +1966,20 @@ check:
 	add esi, ghostX
 	inc esi
 	inc esi
-	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision
 	cmp ah, '_'
 	je collision
+	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
+	mov ghosthold, ah
 	
 	mov ghostDir, 'd'
 	mov al, ghostY
 	Call setline
 	add esi, ghostX
-	mov al, ' '
+	mov al, ghostpreserve
 	mov [esi], al
 	call printghostblank
 	inc esi
@@ -1964,6 +1989,8 @@ check:
 	mov al, 'G'
 	mov [esi], al
 	call printgotoxy
+	mov al, ghosthold
+	mov ghostpreserve, al
 collision:
 ret
 movghostright endp
@@ -1990,10 +2017,10 @@ movghostleft proc USES esi eax
 	jmp check
 teleport:
 	add esi, ghostX
-	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	
 	mov al, ' '
 	mov [esi], al
-	call printgotoxy
+	call printghostblank
 	mov ghostX, 54
 	mov al, ghostY
 	call setline
@@ -2002,6 +2029,8 @@ teleport:
 	mov [esi], al
 	call printgotoxy
 	jmp collision
+	
+
 check:
 ;checks for collision
 	mov al, ghostY
@@ -2009,18 +2038,22 @@ check:
 	add esi, ghostX
 	dec esi
 	dec esi
-	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision
 	cmp ah, '_'
 	je collision
+	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
+	mov ghosthold, ah
+
 ;moves ghostman normally
 	mov ghostDir, 'a'
+
 	mov al, ghostY
 	Call setline
 	add esi, ghostX
-	mov al, ' '
+	mov al, ghostpreserve
 	mov [esi], al
 	call printghostblank
 	dec esi
@@ -2030,6 +2063,8 @@ check:
 	mov al, 'G'
 	mov [esi], al
 	call printgotoxy
+	mov al, ghosthold
+	mov ghostpreserve, al
 collision:
 ret
 movghostleft endp
@@ -2051,18 +2086,20 @@ movghostdown proc USES esi eax
 	call setline
 	dec ghostY
 	add esi, ghostX
-	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision	
 	cmp ah, '_'
 	je collision
+	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
+	mov ghosthold, ah
 	
 	mov ghostDir, 's'
 	mov al, ghostY
 	Call setline
 	add esi, ghostX
-	mov al,' '
+	mov al, ghostpreserve
 	mov [esi], al
 	call printghostblank
 	inc ghostY
@@ -2072,6 +2109,9 @@ movghostdown proc USES esi eax
 	mov al, 'G'
 	mov [esi], al
 	call printgotoxy
+	mov al, ghosthold
+	mov ghostpreserve, al
+
 collision:
 ret
 movghostdown endp
@@ -2093,18 +2133,20 @@ movghostup proc USES esi eax
 	call setline
 	inc ghostY
 	add esi, ghostX
-	call checkdot ;I think this is where I should put it? Please tell me if I'm wrong
+	
 	mov ah, [esi]
 	cmp ah, '#'
 	je collision	
 	cmp ah, '_'
 	je collision
+	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
+	mov ghosthold, ah
 	
 	mov ghostDir, 'w'
 	mov al, ghostY
 	Call setline
 	add esi, ghostX
-	mov al,' '
+	mov al, ghostpreserve
 	mov [esi], al
 	call printghostblank
 	dec ghostY
@@ -2114,18 +2156,49 @@ movghostup proc USES esi eax
 	mov al, 'G'
 	mov [esi], al
 	call printgotoxy
+
+	mov al, ghosthold
+	mov ghostpreserve, al
+
+
 collision:
 ret
 movghostup endp
+
+;---------------------
+;startghost
+;sets up ghostX and ghostY at (28,12) also places ghostman at that location
+;Needs line#, ghostX, ghostY
+;Returns ghostX, ghostY
+;Uses esi eax
+;---------------------
+startghost proc USES esi eax
+; ghost man uses G depending which direction he's heading starts heading right
+; this will just put ghostman into the board at 12X13 aka lineC at index 14
+	mov eax, ' '
+	call printghostblank 
+	
+	mov ghostY, 11
+	;mov esi, offset lineC
+	mov al, ghostY
+	Call setline
+	mov ghostx, 28
+	add esi, ghostx
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+	ret
+startghost endp
 
 ;---------------------
 ;printghostblank
 ;takes in the ussual ghost x and ghost y and makes a blank where ghost was
 ;Needs line#, ghostX, ghostY
 ;Returns nothing
-;Uses nothing
+;Uses eax
 ;---------------------
-printghostblank proc 
+printghostblank proc uses eax 
+	;mov eax, ' '
 	mov ebx, 0
 	mov ebx, ghostx
 	mov dl, bl
@@ -2137,6 +2210,32 @@ printghostblank proc
 ret
 printghostblank endp
 
+movghostrand proc
+	mov eax, 5
+	call randomrange
+	cmp al, 1
+	je ghostright
+	cmp al, 2
+	je ghostleft
+	cmp al, 3
+	je ghostdown
+	cmp al, 4
+	je ghostup
+ghostright:
+	call movghostright
+	jmp ghostdone
+ghostleft:
+	call movghostleft
+	jmp ghostdone
+ghostdown:
+	call movghostdown
+	jmp ghostdone
+ghostup:
+	call movghostup
+	jmp ghostdone
 
+ghostdone:
+ret
+movghostrand endp
 
 END main
