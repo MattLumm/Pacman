@@ -6,7 +6,9 @@ INCLUDE Irvine32.inc
 ;							 width 56+scoredboard and other stuff
 winning byte 0
 dead byte 0
-score word 0
+score word 1
+lives byte 3
+dotseaten word 1
 line1 db "#######################################################",0
 line2 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
 line3 db "# o ####### o ######### o ### o ######### o ####### o #",0
@@ -38,7 +40,7 @@ line1B db "# o ################### o ### o ################### o #",0
 line1C db "# o ################### o ### o ################### o #",0
 line1D db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
 line1E db "#######################################################",0
-line20 db "|   Score:", 0
+line20 db "|    Score:", 0
 
 
 CaseTable BYTE 1 ; lookup Value
@@ -133,14 +135,9 @@ winmsg4 db "  \   /| |  | | |  | |   \ \/  \/ /   | | | . ` | | |", 0
 winmsg5 db "   | | | |__| | |__| |    \  /\  /   _| |_| |\  | |_|", 0
 winmsg6 db "   |_|  \____/ \____/      \/  \/   |_____|_| \_| (_)", 0
 
-fireworks1 db "*''*", 0
-fireworks2 db "*_\/_*", 0
-fireworks3 db "* /\ *", 0
-fireworks4 db "*..*", 0
-
-border1 db "--------------", 0
-bordersides db "|            |", 0
-border30 db "--------------", 0
+border1 db "---------------", 0
+bordersides db "|             |", 0
+border30 db "---------------", 0
 side db "|",0
 
 row db 2;
@@ -173,8 +170,6 @@ instructions1 db "Use the A, S, D, and W keys to move Pacman",0
 instructions2 db "A is left, S is down, D is right, W is up",0
 instructions3 db "Press space bar to start",0
 goodluckmsg db "GOOD LUCK",0
-playagainmsg db "Press space bar to play again!",0
-losemsg db "You lose!!", 0
 
 ghost1 db "G", 0
 ghost2 db "G", 0
@@ -226,14 +221,14 @@ gameloop:
 	mov eax, 100
 	call delay
 	;if score = 10 spawn the ghost outside of the pen at corrdinatines 28, 12
-	cmp score, 10
+	cmp dotseaten, 10
 	jne continuelooping
 	call startghost
 continuelooping:
-	cmp score, 300
+	cmp dotseaten, 300
 	jge youWin
 	cmp dead, 1
-	je youLose
+	je LoseLife
 	;move ghosts here
 	;call movghostrand
 
@@ -279,6 +274,8 @@ up:
 	call movpacup
 	jmp gameloop
 quit:
+
+
 	
 youWin:
 call clrscr
@@ -288,9 +285,24 @@ call delay
 call updateScore
 jmp gameend
 
+
+LoseLife:
+mov eax , 0
+mov al , lives
+dec al
+mov lives , al
+mov al , 0
+mov dead , al
+cmp lives , 0
+je youLose
+call updatelives
+call spawnpac
+jmp gameloop
 youLose:
 call clrscr
 call buildGameOver
+mov eax , 999999
+call delay
 
 gameend:
 
@@ -333,7 +345,7 @@ mov edx, offset line20
 call writestring
 mov eax, 0
 mov ax, score
-call writeint
+call writedec
 mov dh, 1
 mov dl, 0
 call gotoxy
@@ -608,9 +620,11 @@ checkdot proc USES eax
 	jmp nodot
 	islittledot:
 	inc score
+	inc dotseaten
 	jmp nodot
 	isbigdot:
 	add score, 5
+	add dotseaten , 5
 	jmp nodot
 	isghost:
 	mov dead, 1
@@ -871,7 +885,7 @@ updatescore proc USES edx eax
 	call writestring
 	mov eax, 0
 	mov ax, score
-	call writeint
+	call writedec
 	ret
 updatescore endp
 ;---------------------
@@ -956,8 +970,7 @@ ret
 printgotoxy endp
 
 buildYouWin proc
-	mov eax, 12
-	call settextcolor
+
 	mov dh, 12
 	mov dl, 1
 	call gotoxy
@@ -965,8 +978,6 @@ buildYouWin proc
 	call writestring
 	call slowdown
 
-	mov eax, 12
-	call settextcolor
 	mov dh, 13
 	mov dl, 1
 	call gotoxy
@@ -974,8 +985,6 @@ buildYouWin proc
 	call writestring
 	call slowdown
 
-	mov eax, 14
-	call settextcolor
 	mov dh, 14
 	mov dl, 1
 	call gotoxy
@@ -983,8 +992,6 @@ buildYouWin proc
 	call writestring
 	call slowdown
 
-	mov eax,9
-	call settextcolor
 	mov dh, 15
 	mov dl, 1
 	call gotoxy
@@ -992,8 +999,6 @@ buildYouWin proc
 	call writestring
 	call slowdown
 
-	mov eax, 13
-	call settextcolor
 	mov dh, 16
 	mov dl, 1
 	call gotoxy
@@ -1001,183 +1006,18 @@ buildYouWin proc
 	call writestring
 	call slowdown
 
-	mov eax, 10
-	call settextcolor
 	mov dh, 17
 	mov dl, 1
 	call gotoxy
 	mov edx, offset winmsg6
 	call writestring
-
-	mov eax, 14
-	call settextcolor
-
-	mov dh, 5
-	mov dl, 3
-	call gotoxy
-	mov edx, offset fireworks1
-	call writestring
-
-	mov dh, 6
-	mov dl, 2
-	call gotoxy
-	mov edx, offset fireworks2
-	call writestring
-
-	mov dh, 7
-	mov dl, 2
-	call gotoxy
-	mov edx, offset fireworks3
-	call writestring
-
-	mov dh, 8
-	mov dl, 3
-	call gotoxy
-	mov edx, offset fireworks4
-	call writestring
-
-	mov dh, 2
-	mov dl, 27
-	call gotoxy
-	mov edx, offset fireworks1
-	call writestring
-
-	mov dh, 3
-	mov dl, 26
-	call gotoxy
-	mov edx, offset fireworks2
-	call writestring
-
-	mov dh, 4
-	mov dl, 26
-	call gotoxy
-	mov edx, offset fireworks3
-	call writestring
-
-	mov dh, 5
-	mov dl, 27
-	call gotoxy
-	mov edx, offset fireworks4
-	call writestring
-
-	mov dh, 7
-	mov dl, 50
-	call gotoxy
-	mov edx, offset fireworks1
-	call writestring
-
-	mov dh, 8
-	mov dl, 49
-	call gotoxy
-	mov edx, offset fireworks2
-	call writestring
-
-	mov dh, 9
-	mov dl, 49
-	call gotoxy
-	mov edx, offset fireworks3
-	call writestring
-
-	mov dh, 10
-	mov dl, 50
-	call gotoxy
-	mov edx, offset fireworks4
-	call writestring
-
-	mov dh, 20
-	mov dl, 60
-	call gotoxy
-	mov edx, offset fireworks1
-	call writestring
-
-	mov dh, 21
-	mov dl, 59
-	call gotoxy
-	mov edx, offset fireworks2
-	call writestring
-
-	mov dh, 22
-	mov dl, 59
-	call gotoxy
-	mov edx, offset fireworks3
-	call writestring
-
-	mov dh, 23
-	mov dl, 60
-	call gotoxy
-	mov edx, offset fireworks4
-	call writestring
-
-	mov dh, 19
-	mov dl, 24
-	call gotoxy
-	mov edx, offset fireworks1
-	call writestring
-
-	mov dh, 20
-	mov dl, 23
-	call gotoxy
-	mov edx, offset fireworks2
-	call writestring
-
-	 mov dh, 21
-	 mov dl, 23
-	 call gotoxy
-	 mov edx, offset fireworks3
-	 call writestring
-
-	 mov dh, 22
-	 mov dl, 24
-	 call gotoxy
-	 mov edx, offset fireworks4
-	 call writestring
-
-	 mov dh, 22
-	 mov dl, 9
-	 call gotoxy
-	 mov edx, offset fireworks1
-	 call writestring
-
-	 mov dh, 23
-	 mov dl, 8
-	 call gotoxy
-	 mov edx, offset fireworks2
-	 call writestring
-
-	 mov dh, 24
-	 mov dl, 8
-	 call gotoxy
-	 mov edx, offset fireworks3
-	 call writestring
-
-	 mov dh, 25
-	 mov dl, 9
-	 call gotoxy
-	 mov edx, offset fireworks4
-	 call writestring
-	 
-	 call slowdown
-
-	 mov eax, 12
-	 call settextcolor
-	 mov dh, 18
-	 mov dl, 13
-	 call gotoxy
-	 mov edx, offset playagainmsg
-	 call writestring
-
-
-	mov eax, 15
-	call settextcolor
+	call slowdown
 
 
 ret
 buildYouWin endp
 
 buildGameOver proc
-	
-	mov eax, 14
-	call settextcolor
 
 	mov dh, 12
 	mov dl, 1
@@ -1227,26 +1067,6 @@ buildGameOver proc
 	mov edx, offset endmsg7
 	call writestring
 	call slowdown
-
-	mov eax, 11
-	call settextcolor
-	mov dh, 19
-	mov dl, 25
-	call gotoxy
-	mov edx, offset losemsg
-	call writestring
-
-	mov eax, 12
-	call settextcolor
-	mov dh, 20
-	mov dl, 18
-	call gotoxy
-	mov edx, offset playagainmsg
-	call writestring
-
-	mov eax, 15
-	call settextcolor
-
 
 	ret
 buildGameOver endp
@@ -1565,7 +1385,7 @@ inc row
 
 
 mov dh, row
-mov dl, 73
+mov dl, 71
 call gotoxy
 mov edx, offset side
 call writestring
@@ -2438,5 +2258,13 @@ ghostup:
 ghostdone:
 ret
 movghostrand endp
+
+updatelives PROC
+
+
+
+
+ret
+updatelives endp
 
 END main
