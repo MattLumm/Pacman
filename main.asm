@@ -38,7 +38,7 @@ line1B db "# o ################### o ### o ################### o #",0
 line1C db "# o ################### o ### o ################### o #",0
 line1D db "# o o o o o o o o o o o o o o o o o o o o o o o o o o #",0
 line1E db "#######################################################",0
-line20 db "|   Score:", 0
+line20 db "|    Score:", 0
 
 
 CaseTable BYTE 1 ; lookup Value
@@ -328,7 +328,7 @@ mov edx, offset line20
 call writestring
 mov eax, 0
 mov ax, score
-call writeint
+call writedec
 mov dh, 1
 mov dl, 0
 call gotoxy
