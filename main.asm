@@ -7,6 +7,7 @@ INCLUDE Irvine32.inc
 winning byte 0
 dead byte 0
 score word 1
+lives byte 3
 dotseaten word 1
 line1 db "#######################################################",0
 line2 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
@@ -227,7 +228,7 @@ continuelooping:
 	cmp dotseaten, 300
 	jge youWin
 	cmp dead, 1
-	je youLose
+	je LoseLife
 	;move ghosts here
 	;call movghostrand
 
@@ -273,6 +274,8 @@ up:
 	call movpacup
 	jmp gameloop
 quit:
+
+
 	
 youWin:
 call clrscr
@@ -282,6 +285,19 @@ call delay
 call updateScore
 jmp gameend
 
+
+LoseLife:
+mov eax , 0
+mov al , lives
+dec al
+mov lives , al
+mov al , 0
+mov dead , al
+cmp lives , 0
+je youLose
+call updatelives
+call spawnpac
+jmp gameloop
 youLose:
 call clrscr
 call buildGameOver
@@ -2242,5 +2258,13 @@ ghostup:
 ghostdone:
 ret
 movghostrand endp
+
+updatelives PROC
+
+
+
+
+ret
+updatelives endp
 
 END main
