@@ -175,7 +175,7 @@ instructions1 db "Use the A, S, D, and W keys to move Pacman",0
 instructions2 db "A is left, S is down, D is right, W is up",0
 instructions3 db "Press space bar to start",0
 goodluckmsg db "GOOD LUCK",0
-playagainmsg db "Press space bar to play again!",0
+displayscoremsg db "Your Score Was: ",0
 losemsg db "You lose!!", 0
 
 ghost1 db "G", 0
@@ -297,7 +297,6 @@ quit:
 youWin:
 call clrscr
 call buildYouWin
-call updatescore
 mov eax , 9999
 call delay
 jmp gameend
@@ -327,7 +326,6 @@ jmp gameloop
 youLose:
 call clrscr
 call buildGameOver
-call updatescore
 mov eax , 9999
 call delay
 
@@ -1272,8 +1270,11 @@ buildYouWin proc
 	 mov dh, 18
 	 mov dl, 13
 	 call gotoxy
-	 mov edx, offset playagainmsg
+	 mov edx, offset displayscoremsg
 	 call writestring
+	 mov eax , 0
+	 mov ax, score
+	 call writedec
 
 
 	mov eax, 15
@@ -1349,8 +1350,11 @@ buildGameOver proc
  	mov dh, 20
  	mov dl, 18
  	call gotoxy
- 	mov edx, offset playagainmsg
- 	call writestring
+ 	mov edx, offset displayscoremsg
+	call writestring
+	mov eax ,0
+	mov ax, score
+	call writedec
  
  	mov eax, 15
  	call settextcolor
