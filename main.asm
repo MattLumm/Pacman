@@ -688,7 +688,7 @@ cmp dx, 0
 je drawfruit
 jmp done
 drawfruit:
-	mov al, 18
+	mov al, 17
 	call setline
 	add esi, 30
 	mov al, 'C'
