@@ -234,7 +234,7 @@ gameloop:
 	jne continuelooping
 	call startghost
 continuelooping:
-	cmp dotseaten, 224
+	cmp dotseaten, 244
 	jge youWin
 	cmp dead, 1
 	je LoseLife
@@ -647,14 +647,14 @@ movpacleft endp
 ;----------
 checkdot proc USES eax
 	mov ah, [esi]
+	cmp ah, 'C'
+	je isfruit
 	cmp ah, 'o'
 	je islittledot
 	cmp ah, '0'
 	je isbigdot
 	cmp ah, 'G'
 	je isghost
-	cmp ah, 'C'
-	je isfruit
 	jmp nodot
 	islittledot:
 	inc score
@@ -662,10 +662,11 @@ checkdot proc USES eax
 	jmp nodot
 	isbigdot:
 	add score, 5
-	add dotseaten , 1
+	inc dotseaten
 	jmp nodot
 	isghost:
 	mov dead, 1
+	jmp nodot
 	isfruit:
 	add score, 50
 	jmp nodot
@@ -690,8 +691,6 @@ drawfruit:
 	mov al, 18
 	call setline
 	add esi, 30
-	mov bl, [esi]
-	mov temploc, bl
 	mov al, 'C'
 	mov [esi], al
 	mov eax, lightred
