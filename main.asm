@@ -1016,7 +1016,7 @@ ghost0:
 
 ghost1:
 	push eax
-	mov eax, red
+	mov eax, lightCyan
 	call settextcolor
 	pop eax
 	mov ebx, 0
@@ -1044,7 +1044,7 @@ ghost2:
 	jmp done
 ghost3:
 	push eax
-	mov eax, gray
+	mov eax, lightMagenta
 	call settextcolor
 	pop eax
 	mov ebx, 0
