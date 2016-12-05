@@ -234,7 +234,7 @@ gameloop:
 	jne continuelooping
 	call startghost
 continuelooping:
-	cmp dotseaten, 261
+	cmp dotseaten, 260
 	jge youWin
 	cmp dead, 1
 	je LoseLife
@@ -297,9 +297,9 @@ quit:
 youWin:
 call clrscr
 call buildYouWin
-mov eax , 999999
+call updatescore
+mov eax , 9999
 call delay
-call updateScore
 jmp gameend
 
 
@@ -327,7 +327,8 @@ jmp gameloop
 youLose:
 call clrscr
 call buildGameOver
-mov eax , 999999
+call updatescore
+mov eax , 9999
 call delay
 
 gameend:
@@ -1074,6 +1075,8 @@ buildYouWin proc
 	call slowdown
 
 	mov eax, 14
+	call randomrange
+	inc eax
 	call settextcolor
 
 	mov eax , 2000
@@ -1105,6 +1108,11 @@ buildYouWin proc
 	mov eax , 500
 	call delay
 
+	mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
+
 	mov dh, 2
 	mov dl, 27
 	call gotoxy
@@ -1131,6 +1139,11 @@ buildYouWin proc
 
 	mov eax , 750
 	call delay
+
+	mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
 
 	mov dh, 7
 	mov dl, 50
@@ -1159,6 +1172,11 @@ buildYouWin proc
 	mov eax , 750
 	call delay
 
+	mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
+
 	mov dh, 20
 	mov dl, 60
 	call gotoxy
@@ -1186,6 +1204,11 @@ buildYouWin proc
 	mov eax , 750
 	call delay
 
+	mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
+
 	mov dh, 19
 	mov dl, 24
 	call gotoxy
@@ -1212,6 +1235,11 @@ buildYouWin proc
 
 	 mov eax , 750
 	 call delay
+
+	 mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
 
 	 mov dh, 22
 	 mov dl, 9
