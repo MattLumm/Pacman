@@ -671,9 +671,9 @@ checkdot proc USES eax
 	ret
 checkdot endp
 
-spawnfruits proc
+spawnfruits proc USES eax edx ecx esi
 mov dx, 0
-mov ax, score
+mov ax, dotseaten
 mov cx, 100
 div cx
 cmp dx, 0
