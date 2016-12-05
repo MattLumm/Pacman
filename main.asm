@@ -1,4 +1,4 @@
-TITLE andy		(arrayweek.asm)
+TITLE Pac-Man (Matt Lum, Khadija Panirwala, Andrew Tenhagen, Khalil Sheehan-Miles)
 INCLUDE Irvine32.inc
 .data
 ; board is 31X28; err now 31X55 
@@ -106,8 +106,6 @@ EntrySize = ($ - CaseTable)
 	DWORD Process_29
 		BYTE 30
 	DWORD Process_30
-;		BYTE 31
-;	DWORD Process_31
 
 
 NumberOfEntries = ($-CaseTable) / EntrySize
@@ -178,19 +176,6 @@ instructions3 db "Press space bar to start",0
 goodluckmsg db "GOOD LUCK",0
 displayscoremsg db "Your Score Was: ",0
 losemsg db "You lose!!", 0
-
-;ghost1 db "G", 0
-;ghost2 db "G", 0
-;ghost3 db "G", 0
-;ghost4 db "G", 0
-
-;ghost1x dd 0
-;ghost1y dd 0
-;ghost1dir db 0
-;ghost2x db ?
-;ghost2y db ?
-;ghost3x db ?
-;ghost3y db ?
 
 
 prevx		BYTE   11
@@ -330,13 +315,6 @@ call delay
 
 gameend:
 
-;mainloop:
-;	call drawdots
-;	call drawpac
-;	call updatedots
-;	call input
-;	cmp winning, 0
-;	je mainloop
 exit
 main ENDP
 
@@ -464,9 +442,6 @@ call crlf
 mov edx , offset line1E
 call writegameline
 call crlf
-;mov edx , offset line1F
-;call writegameline
-;call crlf
 ret
 Drawstart endp
 
@@ -3995,5 +3970,6 @@ removeScore PROC USES edx eax
 	call writestring
 	ret
 removeScore endp
+
 
 END main
