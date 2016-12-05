@@ -2069,6 +2069,14 @@ check:
 	je collision
 	cmp ah, 'G'
 	je collision
+	cmp ah, 'v'
+	je pachit
+	cmp ah, '<'
+	je pachit
+	cmp ah, '>'
+	je pachit
+	cmp ah, '^'
+	je pachit
 	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
 	mov ghosthold, ah
 	
@@ -2091,6 +2099,10 @@ check:
 	jmp done
 collision:
 	mov ghostcol, 1
+	jmp done
+pachit:
+	mov dead, 1
+	jmp done
 done:
 ret
 movghostright endp
@@ -2151,6 +2163,14 @@ check:
 	je collision
 	cmp ah, 'G'
 	je collision
+	cmp ah, 'v'
+	je pachit
+	cmp ah, '<'
+	je pachit
+	cmp ah, '>'
+	je pachit
+	cmp ah, '^'
+	je pachit
 	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
 	mov ghosthold, ah
 
@@ -2175,6 +2195,10 @@ check:
 	jmp done
 collision:
 	mov ghostcol, 1
+	jmp done
+pachit:
+	mov dead, 1
+	jmp done
 done:
 ret
 movghostleft endp
@@ -2210,6 +2234,14 @@ movghostdown proc USES esi eax
 	je collision
 	cmp ah, 'G'
 	je collision
+	cmp ah, 'v'
+	je pachit
+	cmp ah, '<'
+	je pachit
+	cmp ah, '>'
+	je pachit
+	cmp ah, '^'
+	je pachit
 	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
 	mov ghosthold, ah
 	
@@ -2232,6 +2264,10 @@ movghostdown proc USES esi eax
 	jmp done
 collision:
 	mov ghostcol, 1
+	jmp done
+pachit:
+	mov dead, 1
+	jmp done
 done:
 
 ret
@@ -2268,6 +2304,14 @@ movghostup proc USES esi eax
 	je collision
 	cmp ah, 'G'
 	je collision
+	cmp ah, 'v'
+	je pachit
+	cmp ah, '<'
+	je pachit
+	cmp ah, '>'
+	je pachit
+	cmp ah, '^'
+	je pachit
 	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
 	mov ghosthold, ah
 	
@@ -2294,6 +2338,10 @@ movghostup proc USES esi eax
 
 collision:
 	mov ghostcol, 1
+	jmp done
+pachit:
+	mov dead, 1
+	jmp done
 done:
 ret
 movghostup endp
@@ -2380,6 +2428,14 @@ check:
 	je collision
 	cmp ah, 'G'
 	je collision
+	cmp ah, 'v'
+	je pachit
+	cmp ah, '<'
+	je pachit
+	cmp ah, '>'
+	je pachit
+	cmp ah, '^'
+	je pachit
 	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
 	mov ghost1hold, ah
 	
@@ -2402,6 +2458,10 @@ check:
 	jmp done
 collision:
 	mov ghost1col, 1
+	jmp done
+pachit:
+	mov dead, 1
+	jmp done
 done:
 ret
 movghost1right endp
@@ -2462,6 +2522,14 @@ check:
 	je collision
 	cmp ah, 'G'
 	je collision
+	cmp ah, 'v'
+	je pachit
+	cmp ah, '<'
+	je pachit
+	cmp ah, '>'
+	je pachit
+	cmp ah, '^'
+	je pachit
 	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
 	mov ghost1hold, ah
 
@@ -2486,6 +2554,10 @@ check:
 	jmp done
 collision:
 	mov ghost1col, 1
+	jmp done
+pachit:
+	mov dead, 1
+	jmp done
 done:
 ret
 movghost1left endp
@@ -2521,6 +2593,14 @@ movghost1down proc USES esi eax
 	je collision
 	cmp ah, 'G'
 	je collision
+	cmp ah, 'v'
+	je pachit
+	cmp ah, '<'
+	je pachit
+	cmp ah, '>'
+	je pachit
+	cmp ah, '^'
+	je pachit
 	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
 	mov ghost1hold, ah
 	
@@ -2543,6 +2623,10 @@ movghost1down proc USES esi eax
 	jmp done
 collision:
 	mov ghost1col, 1
+	jmp done
+pachit:
+	mov dead, 1
+	jmp done
 done:
 
 ret
@@ -2579,6 +2663,14 @@ movghost1up proc USES esi eax
 	je collision
 	cmp ah, 'G'
 	je collision
+	cmp ah, 'v'
+	je pachit
+	cmp ah, '<'
+	je pachit
+	cmp ah, '>'
+	je pachit
+	cmp ah, '^'
+	je pachit
 	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
 	mov ghost1hold, ah
 	
@@ -2605,6 +2697,10 @@ movghost1up proc USES esi eax
 
 collision:
 	mov ghost1col, 1
+	jmp done
+pachit:
+	mov dead, 1
+	jmp done
 done:
 ret
 movghost1up endp
