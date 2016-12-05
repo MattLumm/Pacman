@@ -654,6 +654,8 @@ checkdot proc USES eax
 	je isbigdot
 	cmp ah, 'G'
 	je isghost
+	cmp ah, 'C'
+	je isfruit
 	jmp nodot
 	islittledot:
 	inc score
@@ -665,12 +667,46 @@ checkdot proc USES eax
 	jmp nodot
 	isghost:
 	mov dead, 1
+	isfruit:
+	add score,50
+	add dotseaten, 50
+	jmp nodot
 	nodot:
 	;cmp score, 310
 	;jge youWin
 	call updatescore
+	;; spawn fruit
+	call spawnfruits
 	ret
 checkdot endp
+
+spawnfruits proc
+mov dx, 0
+mov ax, score
+mov cx, 100
+div cx
+cmp dx, 0
+je drawfruit
+jmp done
+drawfruit:
+	mov al, 18
+	call setline
+	add esi, 30
+	mov bl, [esi]
+	mov temploc, bl
+	mov al, 'C'
+	mov [esi], al
+	mov eax, lightred
+	call settextcolor
+	mov al, 'C'
+	mov dh, 18
+	mov dl, 30
+	call gotoxy
+	call writechar
+done:
+	ret
+spawnfruits endp
+
 
 ;---------------------
 ;movpacup
