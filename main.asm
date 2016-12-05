@@ -178,18 +178,18 @@ goodluckmsg db "GOOD LUCK",0
 playagainmsg db "Press space bar to play again!",0
 losemsg db "You lose!!", 0
 
-ghost1 db "G", 0
-ghost2 db "G", 0
-ghost3 db "G", 0
-ghost4 db "G", 0
+;ghost1 db "G", 0
+;ghost2 db "G", 0
+;ghost3 db "G", 0
+;ghost4 db "G", 0
 
-ghost1x dd 0
-ghost1y dd 0
-ghost1dir db 0
-ghost2x db ?
-ghost2y db ?
-ghost3x db ?
-ghost3y db ?
+;ghost1x dd 0
+;ghost1y dd 0
+;ghost1dir db 0
+;ghost2x db ?
+;ghost2y db ?
+;ghost3x db ?
+;ghost3y db ?
 
 
 prevx		BYTE   11
@@ -201,6 +201,27 @@ ghosttimer db 0
 ghosthold db 0
 ghostpreserve db ' '
 ghostcol db 0
+ghost1hold db 0
+ghost1preserve db ' '
+ghost1col db 0
+ghost2hold db 0
+ghost2preserve db ' '
+ghost2col db 0
+ghost3hold db 0
+ghost3preserve db ' '
+ghost3col db 0
+
+ghost2x dd 0
+ghost2y db 0
+ghost3x dd 0
+ghost3y db 0
+startdone0 db 0
+startdone1 db 0
+
+ghostchoice db 0
+
+endgameloop db 0
+
 
 buffer BYTE 1000 DUP(?)
 saveBuffer BYTE 1000 DUP(?)
@@ -221,6 +242,7 @@ main PROC
 	mov ebx, 0
 	call spawnpac
 	call spawnghost
+	call spawnghost1
 	call drawstart
 	call drawborder
 	call updatelives
@@ -231,8 +253,17 @@ gameloop:
 	call delay
 	;if score = 10 spawn the ghost outside of the pen at corrdinatines 28, 12
 	cmp dotseaten, 10
-	jne continuelooping
+	jge go0
+	
+	jmp continuelooping
+go0:
 	call startghost
+	cmp dotseaten, 20
+	jge go1
+	jmp continuelooping
+go1:
+	call startghost1
+	jmp continuelooping
 continuelooping:
 	cmp dotseaten, 261
 	jge youWin
@@ -240,57 +271,19 @@ continuelooping:
 	je LoseLife
 	;move ghosts here
 	call movghostrand
+	call movghost1rand
 
-	call readkey
-	cmp al,'d'
-	je right
-	cmp al,'w'
-	je up
-	cmp al, 'a'
-	je left
-	cmp al, 's'
-	je down
-	cmp dx,VK_ESCAPE
+	call movpac
+
+	cmp endgameloop,1
 	je quit
-automove:
-	mov al, pacdir
-	cmp al,'d'
-	je right
-	cmp al,'w'
-	je up
-	cmp al, 'a'
-	je left
-	cmp al, 's'
-	je down
-
 	add ecx, 1
 	loop gameloop
 
-right:
-	;call movghostright
-	call movpacright
-	cmp paccol, 1
-	;je automove
-	jmp gameloop
-left:
-	;call movghostleft
-	call movpacleft
-	cmp paccol, 1
-	;je automove
-	jmp gameloop
-down:
-	;call movghostdown
-	call movpacdown
-	cmp paccol, 1
-	;je automove
-	jmp gameloop
-up:
-	;call movghostup
-	call movpacup
-	cmp paccol, 1
-	;je automove
-	jmp gameloop
+
 quit:
+;if endgameloop=0 keepgoing
+;if endgameloop=1 stop
 
 
 	
@@ -941,7 +934,7 @@ updatescore endp
 ;printgotoxy
 ;moves the cursor to pacX and pacY then writes a char
 ;then moves the curosr to the bottom of the screen
-;Needs pacX, pacY, takes al to determine what color char is
+;Needs pacX, pacY, takes al to determine what color char is now needs ghostchoice for which ghost 0,1,2,3
 ;Returns nothing
 ;Uses esi ebx
 ;---------------------
@@ -964,11 +957,72 @@ printgotoxy proc USES edx ebx
 	je colorpac
 	jmp printpac
 colorghost:
+	cmp ghostchoice,0
+	je ghost0
+	cmp ghostchoice,1
+	je ghost1
+	cmp ghostchoice,2
+	je ghost2
+	cmp ghostchoice,3
+	je ghost3
+ghost0:
 	push eax
 	mov eax, lightgreen
 	call settextcolor
 	pop eax
-	jmp printghost
+;print
+	mov ebx, 0
+	mov ebx, ghostX
+	mov dl, bl
+	inc ghosty
+	mov dh, ghostY
+	dec ghostY
+	call Gotoxy
+	call writechar
+	jmp done
+
+ghost1:
+	push eax
+	mov eax, red
+	call settextcolor
+	pop eax
+	mov ebx, 0
+	mov ebx, ghost1X
+	mov dl, bl
+	inc ghost1y
+	mov dh, ghost1Y
+	dec ghost1Y
+	call Gotoxy
+	call writechar
+	jmp done
+ghost2:
+	push eax
+	mov eax, lightred
+	call settextcolor
+	pop eax
+	mov ebx, 0
+	mov ebx, ghost2X
+	mov dl, bl
+	inc ghost2y
+	mov dh, ghost2Y
+	dec ghost2Y
+	call Gotoxy
+	call writechar
+	jmp done
+ghost3:
+	push eax
+	mov eax, gray
+	call settextcolor
+	pop eax
+	mov ebx, 0
+	mov ebx, ghost3X
+	mov dl, bl
+	inc ghost3y
+	mov dh, ghost3Y
+	dec ghost3Y
+	call Gotoxy
+	call writechar
+	jmp done
 colorpac: 
 	push eax
 	mov eax, yellow
@@ -984,17 +1038,6 @@ printpac:
 	call Gotoxy
 	call writechar
 	jmp done
-printghost:
-	mov ebx, 0
-	mov ebx, ghostX
-	mov dl, bl
-	inc ghosty
-	mov dh, ghostY
-	dec ghostY
-	call Gotoxy
-	call writechar
-	jmp done
-
 
 done:
 ;calls gotoxy a 2nd time so there's no flickering ' ' cursor marker 
@@ -1803,306 +1846,6 @@ call writestring
 ret
 drawborder endp
 
-;spawnGhosts proc 
-;	call getDirection
-;	;call movGhosts
-;	;call checkMapLoc
-;	;call DrawGhosts
-;	ret
-;spawnGhosts endp
-;
-;
-;getDirection proc
-;	mov deltax, 0
-;	mov deltay, 0
-;	mov eax, 5
-;	call randomrange
-;
-;	cmp eax, 1
-;	je right
-;	cmp eax, 2
-;	je left
-;	cmp eax, 3
-;	je up
-;	cmp eax, 4
-;	je down
-;
-;	right:
-;		mov deltax, 1
-;		mov deltay, 0
-;		call movghostright
-;	left:
-;		mov deltax, -1
-;		mov deltay, 0
-;		call movghostleft
-;	up:
-;		mov deltax, 0
-;		mov deltay, -1
-;		call movghostup
-;	down:
-;		mov deltax, 0
-;		mov deltay, 1
-;		call movghostdown
-;	stop:
-;		ret
-;
-;getDirection endp
-;
-;;movGhosts proc uses eax ebx
-;;	;get previous location
-;;	mov bl, ghostx
-;;	mov prevx, bl
-;;	mov bl, ghosty
-;;	mov prevy, bl
-;;	
-;;	;mov to new location
-;;	mov al, deltax
-;;	add ghostx, al
-;;	mov al, deltay
-;;	add ghosty, al
-;;	
-;;	ret
-;;movGhosts endp
-;
-;
-;movghostright proc USES esi eax	
-;;checks for teleport	
-;	mov al, ghosty
-;	call setline
-;	cmp ghostx, 54
-;	je teleport
-;	jmp check
-;teleport:
-;	; trying to make sure the dots stay dots after it moves
-;	mov ghostx, 0
-;	mov al, ghosty 
-;	call setline
-;	add esi, ghostx
-;	mov al, [esi]
-;	mov temploc, al
-;	add esi, ghostx
-;	mov al, temploc
-;	mov [esi], al
-;	call DrawGhosts
-;
-;	mov ghostx, 0
-;	mov al, ghosty
-;	call setline
-;	add esi, ghostx
-;	mov al, 'G'
-;	mov [esi], al
-;	call DrawGhosts
-;	jmp collision
-;check:
-;;checks for collision
-;	mov al, ghosty
-;	call setline
-;	add esi, ghostx
-;	inc esi
-;	inc esi
-;	mov ah, [esi]
-;	cmp ah, '#'
-;	je collision
-;
-;	inc esi
-;	inc esi
-;	inc ghostx
-;	inc ghostx
-;	mov al, [esi]
-;	mov temploc, al
-;	mov ghostdir, 'd'
-;	mov al, ghosty
-;	Call setline
-;	add esi, ghostx
-;	mov al, temploc
-;	mov [esi], al
-;	call DrawGhosts
-;
-;
-;	inc esi
-;	inc esi
-;	inc ghostx
-;	inc ghostx
-;	mov al, 'G'
-;	mov [esi], al
-;	call DrawGhosts
-;collision:
-;ret
-;movghostright endp
-;
-;movghostleft proc USES esi eax
-;; need to check if the next spot is open or not
-;; set pacDir = 'a' to rep pac heading left, replace pacX, pacY with _ to represent pellet eaten, then dec pacX, move pac to pacX, pacY 
-;
-;;checks for teleport
-;	mov al, ghosty	
-;	call setline
-;	cmp ghostx, 0
-;	je teleport
-;	jmp check
-;teleport:
-;	mov ghostx, 54
-;	mov al, ghosty
-;	call setline
-;	add esi, ghostx
-;	mov al, [esi]
-;	mov temploc, al
-;	add esi, ghostx
-;	mov al, temploc
-;	mov [esi], al
-;	call DrawGhosts
-;
-;
-;	mov ghostx, 54
-;	mov al, ghosty
-;	call setline
-;	add esi, ghostx
-;	mov al, 'G'
-;	mov [esi], al
-;	call DrawGhosts
-;	jmp collision
-;check:
-;;checks for collision
-;	mov al, ghosty
-;	call setline
-;	add esi, ghostx
-;	dec esi
-;	dec esi
-;	mov ah, [esi]
-;	cmp ah, '#'
-;	je collision
-;;moves pacman normally
-;	mov ghostDir, 'a'
-;	dec esi
-;	dec esi
-;	dec ghostx
-;	mov al, [esi]
-;	mov temploc, al
-;	mov al, ghosty
-;	Call setline
-;	add esi, ghostx
-;	mov al, temploc
-;	mov [esi], al
-;	call DrawGhosts
-;
-;
-;	dec esi
-;	dec esi
-;	dec ghostx
-;	dec ghostx
-;	mov al, 'G'
-;	mov [esi], al
-;	call DrawGhosts
-;collision:
-;ret
-;movghostleft endp
-;
-;movghostup proc USES esi eax
-;; need to check if the next spot is open still
-;; set pacDir = 'w' to rep pac heading up, replace pacX, pacY with _, then dec pacY, mov pac to pacX, pacY	
-;	dec ghosty
-;	mov al, ghosty
-;	call setline
-;	inc ghosty
-;	add esi, ghostx
-;	mov ah, [esi]
-;	cmp ah, '#'
-;	je collision	
-;	
-;	mov ghostDir, 'w'
-;
-;	dec ghosty
-;	mov al, ghosty
-;	Call setline
-;	add esi, ghostx
-;	mov al, [esi]
-;	mov temploc, al
-;	add esi, ghostx
-;	mov al, temploc
-;	mov [esi], al
-;	call DrawGhosts
-;
-;
-;	dec ghosty
-;	mov al, ghosty
-;	Call setline
-;	add esi, ghostx
-;	mov al, 'G'
-;	mov [esi], al
-;	call DrawGhosts
-;collision:
-;ret
-;movghostup endp
-;
-;movghostdown proc USES esi eax
-;; need to check if the next spot is open still
-;; set pacDir = 's' to rep pac heading down, replace pacX, pacY with _, then inc pacY, mov pac to pacX, pacY
-;	inc ghosty
-;	mov al, ghosty
-;	call setline
-;	dec ghosty
-;	add esi, ghostx
-;	mov ah, [esi]
-;	cmp ah, '#'
-;	je collision	
-;	
-;	mov ghostDir, 's'
-;	inc ghosty
-;	mov al, ghosty
-;	Call setline
-;	add esi, ghostx
-;	mov al, [esi]
-;	mov temploc, al
-;	add esi, ghostx
-;	mov al, temploc
-;	mov [esi], al
-;	call DrawGhosts
-;
-;
-;	inc ghosty
-;	mov al, ghosty
-;	Call setline
-;	add esi, ghostx
-;	mov al, 'G'
-;	mov [esi], al
-;	call DrawGhosts
-;collision:
-;ret
-;movghostdown endp
-;
-;;MoveBack proc USES eax
-;;	mov eax, 0
-;;	mov al, prevx
-;;	mov ghostx, al
-;;	mov al, prevy
-;;	mov ghosty, al
-;;	ret
-;;MoveBack endp
-;
-;DrawGhosts proc USES eax edx ecx
-;;note to self use dl=pacX+1 dh=pacY+1
-;;gotoXY takes in dl:column(aka which column X), dh:row(aka which row Y)
-;;then call Gotoxy
-;
-;	mov ebx, 0
-;	mov ebx, ghostx
-;	mov dl, bl
-;	inc ghosty
-;	mov dh, ghosty
-;	dec ghosty
-;	call Gotoxy
-;	mov bl, al
-;	mov eax, 14
-;	call settextcolor
-;	mov al, bl
-;	call writechar
-;	mov eax, 15 
-;	call settextcolor
-;
-;skipdelay:
-;ret
-;
-;DrawGhosts endp
 
 WriteGameLine PROC
 mov esi , edx
@@ -2222,6 +1965,9 @@ movghostright proc USES esi eax
 	;set thing to 0 for ghost collisions
 	mov ghostcol, 0
 
+	;setts which ghost is moving
+	mov ghostchoice,0
+
 ;checks for teleport	
 	mov al, ghostY
 	call setline
@@ -2255,6 +2001,8 @@ check:
 	cmp ah, '#'
 	je collision
 	cmp ah, '_'
+	je collision
+	cmp ah, 'G'
 	je collision
 	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
 	mov ghosthold, ah
@@ -2298,6 +2046,9 @@ movghostleft proc USES esi eax
 
 	mov ghostcol, 0
 
+	;setts which ghost is moving
+	mov ghostchoice,0
+
 ;checks for teleport
 	mov al, ghostY	
 	call setline
@@ -2332,6 +2083,8 @@ check:
 	cmp ah, '#'
 	je collision
 	cmp ah, '_'
+	je collision
+	cmp ah, 'G'
 	je collision
 	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
 	mov ghosthold, ah
@@ -2375,6 +2128,9 @@ movghostdown proc USES esi eax
 ; set ghostDir = 's' to rep ghost heading down, replace ghostX, ghostY with _, then inc ghostY, mov ghost to ghostX, ghostY
 	
 	mov ghostcol, 0
+
+	;setts which ghost is moving
+	mov ghostchoice,0
 	
 	inc ghostY
 	mov al, ghostY
@@ -2386,6 +2142,8 @@ movghostdown proc USES esi eax
 	cmp ah, '#'
 	je collision	
 	cmp ah, '_'
+	je collision
+	cmp ah, 'G'
 	je collision
 	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
 	mov ghosthold, ah
@@ -2429,6 +2187,9 @@ movghostup proc USES esi eax
 	
 	mov ghostcol, 0
 
+	;setts which ghost is moving
+	mov ghostchoice,0
+
 	dec ghostY
 	mov al, ghostY
 	call setline
@@ -2439,6 +2200,8 @@ movghostup proc USES esi eax
 	cmp ah, '#'
 	je collision	
 	cmp ah, '_'
+	je collision
+	cmp ah, 'G'
 	je collision
 	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
 	mov ghosthold, ah
@@ -2471,6 +2234,317 @@ ret
 movghostup endp
 
 ;---------------------
+;spawnghost1
+;sets up ghost1x and ghost1y at (28,12) also places ghostman at that location
+;Needs line#, ghost1x, ghost1y
+;Returns ghost1x, ghost1y
+;Uses esi eax
+;---------------------
+spawnghost1 proc USES esi eax
+; ghost man uses <, >, ^, v  depending which direction he's heading starts heading right
+.data 
+ghost1x dd 0
+ghost1y db 0
+ghost1Dir db 'd'
+.code
+; this will just put ghostman into the board at 12X13 aka lineC at index 14
+	mov ghost1y, 14
+	;mov esi, offset lineC
+	mov al, ghost1y
+	Call setline
+	mov ghost1x, 30
+	add esi, ghost1x
+	mov al, 'G'
+	mov [esi], al
+	ret
+spawnghost1 endp
+
+;---------------------
+;movghost1right
+;moves ghost1x up 2 and shifts the ghostman icon 2 to the right in the line index. 
+;Also replaces where ghostman was with' '. 
+;Checks for collision with '#' in two sghostes ahead and doesn't move if a wall does exist
+;Will wrap around the array if it move right from the 54 index will move to 0 index
+;Needs line#, ghost1x, ghost1y
+;Returns ghost1x, line#
+;Uses esi eax
+;---------------------
+movghost1right proc USES esi eax
+; need to check if the next spot is open or not
+; set ghost1Dir = 'd' to rep ghost heading right, replace ghost1x, ghost1y with _ to represent pellet eaten, then inc ghost1x, move ghost to ghost1x, ghost1y 
+	
+	;set thing to 0 for ghost collisions
+	mov ghost1col, 0
+
+	;for printing purpose
+	mov ghostchoice, 1
+
+;checks for teleport	
+	mov al, ghost1y
+	call setline
+	cmp ghost1x, 54
+	je teleport
+	jmp check
+teleport:
+	add esi, ghost1x
+	
+	mov al, ' '
+	mov [esi], al
+	call printghostblank
+	mov ghost1x, 0
+	mov al, ghost1y
+	call setline
+	add esi, ghost1x
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+	jmp done
+	
+check:
+;checks for collision
+	mov al, ghost1y
+	call setline
+	add esi, ghost1x
+	inc esi
+	inc esi
+	
+	mov ah, [esi]
+	cmp ah, '#'
+	je collision
+	cmp ah, '_'
+	je collision
+	cmp ah, 'G'
+	je collision
+	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
+	mov ghost1hold, ah
+	
+	mov ghost1Dir, 'd'
+	mov al, ghost1y
+	Call setline
+	add esi, ghost1x
+	mov al, ghost1preserve
+	mov [esi], al
+	call printghostblank
+	inc esi
+	inc esi
+	inc ghost1x
+	inc ghost1x
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+	mov al, ghost1hold
+	mov ghost1preserve, al
+	jmp done
+collision:
+	mov ghost1col, 1
+done:
+ret
+movghost1right endp
+
+;---------------------
+;movghost1left
+;moves ghost1x down 2 and shifts the ghostman icon 2 to the right in the line index. 
+;Also replaces where ghostman was with' '. 
+;Checks for collision with '#' in two sghostes ahead and doesn't move if a wall does exist
+;Will wrap around the array if ghost moves left from the 0 index will move to 54 index
+;Needs line#, ghost1x, ghost1y
+;Returns ghost1x, line#
+;Uses esi eax
+;---------------------
+movghost1left proc USES esi eax
+; need to check if the next spot is open or not
+; set ghost1Dir = 'a' to rep ghost heading left, replace ghost1x, ghost1y with _ to represent pellet eaten, then dec ghost1x, move ghost to ghost1x, ghost1y 
+
+	mov ghost1col, 0
+
+	;for printing purpose
+	mov ghostchoice, 1
+
+;checks for teleport
+	mov al, ghost1y	
+	call setline
+	cmp ghost1x, 0
+	je teleport
+	jmp check
+teleport:
+	add esi, ghost1x
+	
+	mov al, ' '
+	mov [esi], al
+	call printghostblank
+	mov ghost1x, 54
+	mov al, ghost1y
+	call setline
+	add esi, ghost1x
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+	jmp done
+	
+
+check:
+;checks for collision
+	mov al, ghost1y
+	call setline
+	add esi, ghost1x
+	dec esi
+	dec esi
+	
+	mov ah, [esi]
+	cmp ah, '#'
+	je collision
+	cmp ah, '_'
+	je collision
+	cmp ah, 'G'
+	je collision
+	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
+	mov ghost1hold, ah
+
+;moves ghostman normally
+	mov ghost1Dir, 'a'
+
+	mov al, ghost1y
+	Call setline
+	add esi, ghost1x
+	mov al, ghost1preserve
+	mov [esi], al
+	call printghostblank
+	dec esi
+	dec esi
+	dec ghost1x
+	dec ghost1x
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+	mov al, ghost1hold
+	mov ghost1preserve, al
+	jmp done
+collision:
+	mov ghost1col, 1
+done:
+ret
+movghost1left endp
+
+;---------------------
+;movghost1down
+;moves ghost1y down 1 and shifts the ghostman icon 1 down in lines
+;Also replaces where ghostman was with' '. 
+;Checks for collision with '#' in two sghostes ahead and doesn't move if a wall does exist
+;Needs line#, ghost1x, ghost1y
+;Returns ghost1y, line#
+;Uses esi eax
+;---------------------
+movghost1down proc USES esi eax
+; need to check if the next spot is open still
+; set ghost1Dir = 's' to rep ghost heading down, replace ghost1x, ghost1y with _, then inc ghost1y, mov ghost to ghost1x, ghost1y
+	
+	mov ghost1col, 0
+
+	;for printing purpose
+	mov ghostchoice, 1
+	
+	inc ghost1y
+	mov al, ghost1y
+	call setline
+	dec ghost1y
+	add esi, ghost1x
+	
+	mov ah, [esi]
+	cmp ah, '#'
+	je collision	
+	cmp ah, '_'
+	je collision
+	cmp ah, 'G'
+	je collision
+	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
+	mov ghost1hold, ah
+	
+	mov ghost1Dir, 's'
+	mov al, ghost1y
+	Call setline
+	add esi, ghost1x
+	mov al, ghost1preserve
+	mov [esi], al
+	call printghostblank
+	inc ghost1y
+	mov al, ghost1y
+	Call setline
+	add esi, ghost1x
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+	mov al, ghost1hold
+	mov ghost1preserve, al
+	jmp done
+collision:
+	mov ghost1col, 1
+done:
+
+ret
+movghost1down endp
+
+;---------------------
+;movghost1up
+;moves ghost1y up 1 and shifts the ghostman icon 1 up in lines
+;Also replaces where ghostman was with' '. 
+;Checks for collision with '#' in two sghostes ahead and doesn't move if a wall does exist
+;Needs line#, ghost1x, ghost1y
+;Returns ghost1y, line#
+;Uses esi eax
+;---------------------
+movghost1up proc USES esi eax
+; need to check if the next spot is open still
+; set ghost1Dir = 'w' to rep ghost heading up, replace ghost1x, ghost1y with _, then dec ghost1y, mov ghost to ghost1x, ghost1y	
+	
+	mov ghost1col, 0
+
+	;for printing purpose
+	mov ghostchoice, 1
+
+	dec ghost1y
+	mov al, ghost1y
+	call setline
+	inc ghost1y
+	add esi, ghost1x
+	
+	mov ah, [esi]
+	cmp ah, '#'
+	je collision	
+	cmp ah, '_'
+	je collision
+	cmp ah, 'G'
+	je collision
+	;ghosts don't leave blanks they just leave what ever was there before in ghost hold
+	mov ghost1hold, ah
+	
+	mov ghost1Dir, 'w'
+	mov al, ghost1y
+	Call setline
+	add esi, ghost1x
+	mov al, ghost1preserve
+	mov [esi], al
+	call printghostblank
+	dec ghost1y
+	mov al, ghost1y
+	Call setline
+	add esi, ghost1x
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+
+	mov al, ghost1hold
+	mov ghost1preserve, al
+
+	jmp done
+
+
+collision:
+	mov ghost1col, 1
+done:
+ret
+movghost1up endp
+
+;---------------------
 ;startghost
 ;sets up ghostX and ghostY at (28,12) also places ghostman at that location
 ;Needs line#, ghostX, ghostY
@@ -2480,7 +2554,15 @@ movghostup endp
 startghost proc USES esi eax
 ; ghost man uses G depending which direction he's heading starts heading right
 ; this will just put ghostman into the board at 12X13 aka lineC at index 14
+	;if already happened once then ret
+
+	cmp startdone0, 0
+	je go
+	ret
+go:
+	mov startdone0, 1
 	mov eax, ' '
+	mov ghostchoice, 0
 	call printghostblank 
 	
 	mov ghostY, 11
@@ -2496,13 +2578,57 @@ startghost proc USES esi eax
 startghost endp
 
 ;---------------------
+;startghost1
+;sets up ghostX and ghostY at (28,12) also places ghostman at that location
+;Needs line#, ghostX, ghostY
+;Returns ghostX, ghostY
+;Uses esi eax
+;---------------------
+startghost1 proc USES esi eax
+; ghost man uses G depending which direction he's heading starts heading right
+; this will just put ghostman into the board at 12X13 aka lineC at index 14
+	;if already happened once then ret
+
+	cmp startdone1, 0
+	je go
+	ret
+go:
+	mov startdone1, 1
+	mov eax, ' '
+	mov ghostchoice, 1
+	call printghostblank 
+	
+	mov ghost1Y, 11
+	;mov esi, offset lineC
+	mov al, ghost1Y
+	Call setline
+	mov ghost1x, 30
+	add esi, ghost1x
+	mov al, 'G'
+	mov [esi], al
+	call printgotoxy
+	ret
+startghost1 endp
+
+;---------------------
 ;printghostblank
-;takes in the ussual ghost x and ghost y and makes a blank where ghost was
+;takes in the ussual ghost x and ghost y and makes a blank where ghost was also takes in ghost choice as what ghost is coming 0,1,2,3
 ;Needs line#, ghostX, ghostY
 ;Returns nothing
 ;Uses eax
 ;---------------------
 printghostblank proc uses eax 
+
+	cmp ghostchoice,0
+	je ghost0
+	cmp ghostchoice,1
+	je ghost1
+	cmp ghostchoice,2
+	je ghost2
+	cmp ghostchoice,3
+	je ghost3
+	;jmp done
+ghost0:
 	;mov eax, ' '
 	mov ebx, 0
 	mov ebx, ghostx
@@ -2512,6 +2638,21 @@ printghostblank proc uses eax
 	dec ghostY
 	call Gotoxy
 	call writechar
+	ret
+ghost1:
+	mov ebx, 0
+	mov ebx, ghost1x
+	mov dl, bl
+	inc ghost1y
+	mov dh, ghost1Y
+	dec ghost1Y
+	call Gotoxy
+	call writechar
+	ret
+ghost2:
+ghost3:
+
+	done:
 ret
 printghostblank endp
 
@@ -2558,6 +2699,49 @@ ghostdone:
 ret
 movghostrand endp
 
+movghost1rand proc
+doitagain:
+	mov eax, 16
+	call randomrange
+	cmp al, 1
+	je ghost1right
+	cmp al, 2
+	je ghost1left
+	cmp al, 3
+	je ghost1down
+	cmp al, 4
+	je ghost1up
+	; if not 1-4 keep same direction
+	;need to add a check if hitting wall to just recall this thing
+	cmp ghost1dir, 'd'
+	je ghost1right
+	cmp ghost1dir, 'w'
+	je ghost1up
+	cmp ghost1dir, 'a'
+	je ghost1left
+	cmp ghost1dir, 's'
+	je ghost1down
+ghost1right:
+	call movghost1right
+	jmp ghost1done
+ghost1left:
+	call movghost1left
+	jmp ghost1done
+ghost1down:
+	call movghost1down
+	jmp ghost1done
+ghost1up:
+	call movghost1up
+	jmp ghost1done
+
+ghost1done:
+	;if ghost1col = 1 do it again
+	cmp ghost1col, 1
+	je doitagain
+
+ret
+movghost1rand endp
+
 updatelives PROC USES edx eax
 	mov dh, 11
 	mov dl, 57
@@ -2572,6 +2756,57 @@ updatelives endp
 
 movpac proc
 
+	call readkey
+	cmp al,'d'
+	je right
+	cmp al,'w'
+	je up
+	cmp al, 'a'
+	je left
+	cmp al, 's'
+	je down
+	cmp dx,VK_ESCAPE
+	je quit
+	
+	;jmp done
+automove:
+	mov al, pacdir
+	cmp al,'d'
+	je right
+	cmp al,'w'
+	je up
+	cmp al, 'a'
+	je left
+	cmp al, 's'
+	je down
+
+right:
+	;call movghostright
+	call movpacright
+	;cmp paccol, 1
+	;je automove
+	ret
+left:
+	;call movghostleft
+	call movpacleft
+	;cmp paccol, 1
+	;je automove
+	ret
+down:
+	;call movghostdown
+	call movpacdown
+	;cmp paccol, 1
+	;je automove
+	ret
+up:
+	;call movghostup
+	call movpacup
+	;cmp paccol, 1
+	;je automove
+	ret
+quit:
+	mov endgameloop, 1
+done:
 ret
 movpac endp
 
