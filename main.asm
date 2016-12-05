@@ -19,16 +19,16 @@ line7 db "# o ####### o ### o ############### o ### o ####### o #",0
 line8 db "# o ####### o ### o ############### o ### o ####### o #",0
 ;line9 db "# o o o o o o # # o o o o ### o o o o ### o o o o o o #",0
 line9 db "# o o o o o o ### o o o o ### o o o o ### o o o o o o #",0
-lineA db "########### o ######### o ### o ######### o ###########",0
-lineB db "#         # o ### o o o o o o o o o o ### o #         #",0
-lineC db "#         # o ### o #####_____##### o ### o #         #",0
-lineD db "#         # o ### o #             # o ### o #         #",0
-lineE db "########### o ### o #             # o ### o ###########",0
-lineF db "            o o o o #             # o o o o            ",0
-line10 db "########### o ### o ############### o ### o ###########",0
-line11 db "#         # o ### o o o o o o o o o o ### o #         #",0
-line12 db "#         # o ### o ############### o ### o #         #",0
-line13 db "########### o ### o ############### o ### o ###########",0
+lineA db "########### o #########   ###   ######### o ###########",0
+lineB db "#         # o ###                     ### o #         #",0
+lineC db "#         # o ###   #####_____#####   ### o #         #",0
+lineD db "#         # o ###   #             #   ### o #         #",0
+lineE db "########### o ###   #             #   ### o ###########",0
+lineF db "            o       #             #       o            ",0
+line10 db "########### o ###   ###############   ### o ###########",0
+line11 db "#         # o ###                     ### o #         #",0
+line12 db "#         # o ###   ###############   ### o #         #",0
+line13 db "########### o ###   ###############   ### o ###########",0
 line14 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
 line15 db "# o ####### o ######### o ### o ######### o ####### o #",0
 line16 db "# o ####### o ######### o ### o ######### o ####### o #",0
@@ -234,7 +234,7 @@ gameloop:
 	jne continuelooping
 	call startghost
 continuelooping:
-	cmp dotseaten, 300
+	cmp dotseaten, 260
 	jge youWin
 	cmp dead, 1
 	je LoseLife
@@ -297,9 +297,9 @@ quit:
 youWin:
 call clrscr
 call buildYouWin
-mov eax , 999999
+call updatescore
+mov eax , 9999
 call delay
-call updateScore
 jmp gameend
 
 
@@ -327,7 +327,8 @@ jmp gameloop
 youLose:
 call clrscr
 call buildGameOver
-mov eax , 999999
+call updatescore
+mov eax , 9999
 call delay
 
 gameend:
@@ -487,8 +488,8 @@ pacY db 0
 pacDir db 'd'
 pacCol db 0
 .code
-; this will just put pacman into the board at 12X13 aka lineC at index 14
-	mov pacY, 11
+; this will just put pacman into the board at 24X13 aka line11 at index 14
+	mov pacY, 23
 	;mov esi, offset lineC
 	mov al, PacY
 	Call setline
@@ -1110,6 +1111,8 @@ buildYouWin proc
 	call slowdown
 
 	mov eax, 14
+	call randomrange
+	inc eax
 	call settextcolor
 
 	mov eax , 2000
@@ -1141,6 +1144,11 @@ buildYouWin proc
 	mov eax , 500
 	call delay
 
+	mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
+
 	mov dh, 2
 	mov dl, 27
 	call gotoxy
@@ -1167,6 +1175,11 @@ buildYouWin proc
 
 	mov eax , 750
 	call delay
+
+	mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
 
 	mov dh, 7
 	mov dl, 50
@@ -1195,6 +1208,11 @@ buildYouWin proc
 	mov eax , 750
 	call delay
 
+	mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
+
 	mov dh, 20
 	mov dl, 60
 	call gotoxy
@@ -1222,6 +1240,11 @@ buildYouWin proc
 	mov eax , 750
 	call delay
 
+	mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
+
 	mov dh, 19
 	mov dl, 24
 	call gotoxy
@@ -1248,6 +1271,11 @@ buildYouWin proc
 
 	 mov eax , 750
 	 call delay
+
+	 mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
 
 	 mov dh, 22
 	 mov dl, 9
@@ -2496,6 +2524,8 @@ movghostup proc USES esi eax
 
 	mov al, ghosthold
 	mov ghostpreserve, al
+
+	jmp done
 
 
 collision:
