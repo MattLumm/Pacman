@@ -269,13 +269,15 @@ gameloop:
 	jge youWin
 	cmp dead, 1
 	je LoseLife
+	call movpac ; Makes death fully work
+
 	;move ghosts here
 	call movghostrand
 	call movghost1rand
 	call movghost2rand
 	call movghost3rand
 
-	call movpac
+	;call movpac
 
 	cmp endgameloop,1
 	je quit
@@ -1520,7 +1522,7 @@ buildSplashScreen proc
 	call writestring
 	call slowdown
 
-	mov eax, 14; yellow
+	mov eax, 10; LIGHT GREEN
 	call settextcolor
 	mov dh, 24
 	mov dl, 0
