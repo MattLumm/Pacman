@@ -2461,6 +2461,8 @@ movghostup proc USES esi eax
 	mov al, ghosthold
 	mov ghostpreserve, al
 
+	jmp done
+
 
 collision:
 	mov ghostcol, 1
