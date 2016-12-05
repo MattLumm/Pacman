@@ -9,6 +9,7 @@ dead byte 0
 score word 1
 lives byte 3
 dotseaten word 1
+nullScore db "   ",0
 line1 db "#######################################################",0
 line2 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
 line3 db "# o ####### o ######### o ### o ######### o ####### o #",0
@@ -314,6 +315,9 @@ mov score , ax
 cmp lives , 0
 je youLose
 call updatelives
+;remove the current pacman from where he is
+call removePac
+call removeScore
 call spawnpac
 jmp gameloop
 youLose:
@@ -3969,6 +3973,25 @@ go3:
 continuelooping:
 
 ret
-spawnghosts endp
+spawnghosts endp 
+removePac PROC USES eax esi
+mov al , pacY
+call setline
+add esi , pacX
+mov al , ' '
+mov [esi] , al
+ret
+removePac endp
+
+removeScore PROC USES edx eax
+	mov dh, 10
+	mov dl, 57
+	call gotoxy
+	mov edx, offset line20
+	call writestring
+	mov edx , offset nullScore
+	call writestring
+	ret
+removeScore endp
 
 END main
