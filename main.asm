@@ -9,6 +9,7 @@ dead byte 0
 score word 1
 lives byte 3
 dotseaten word 1
+fruitspawned byte 0
 nullScore db "   ",0
 line1 db "#######################################################",0
 line2 db "# o o o o o o o o o o o o ### o o o o o o o o o o o o #",0
@@ -659,9 +660,17 @@ mov ax, dotseaten
 mov cx, 100
 div cx
 cmp dx, 0
-je drawfruit
+je firstspawn
+cmp dx , 1
+je unsetfruit
 jmp done
+firstspawn:
+mov dx , 0
+mov dl , fruitspawned
+cmp dl , 1
+je done
 drawfruit:
+	mov fruitspawned , 1
 	mov al, 17
 	call setline
 	add esi, 30
@@ -674,6 +683,14 @@ drawfruit:
 	mov dl, 30
 	call gotoxy
 	call writechar
+	mov eax , white
+	call settextcolor
+	jmp done
+
+unsetfruit:
+	mov fruitspawned , 0
+	jmp done
+
 done:
 	ret
 spawnfruits endp
