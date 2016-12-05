@@ -175,7 +175,7 @@ instructions1 db "Use the A, S, D, and W keys to move Pacman",0
 instructions2 db "A is left, S is down, D is right, W is up",0
 instructions3 db "Press space bar to start",0
 goodluckmsg db "GOOD LUCK",0
-playagainmsg db "Press space bar to play again!",0
+displayscoremsg db "Your Score Was: ",0
 losemsg db "You lose!!", 0
 
 ;ghost1 db "G", 0
@@ -265,7 +265,7 @@ go1:
 	call startghost1
 	jmp continuelooping
 continuelooping:
-	cmp dotseaten, 261
+	cmp dotseaten, 244
 	jge youWin
 	cmp dead, 1
 	je LoseLife
@@ -285,14 +285,12 @@ quit:
 ;if endgameloop=0 keepgoing
 ;if endgameloop=1 stop
 
-
 	
 youWin:
 call clrscr
 call buildYouWin
-mov eax , 999999
+mov eax , 9999
 call delay
-call updateScore
 jmp gameend
 
 
@@ -320,7 +318,7 @@ jmp gameloop
 youLose:
 call clrscr
 call buildGameOver
-mov eax , 999999
+mov eax , 9999
 call delay
 
 gameend:
@@ -480,8 +478,8 @@ pacY db 0
 pacDir db 'd'
 pacCol db 0
 .code
-; this will just put pacman into the board at 12X13 aka lineC at index 14
-	mov pacY, 11
+; this will just put pacman into the board at 24X13 aka line11 at index 14
+	mov pacY, 23
 	;mov esi, offset lineC
 	mov al, PacY
 	Call setline
@@ -641,6 +639,8 @@ movpacleft endp
 ;----------
 checkdot proc USES eax
 	mov ah, [esi]
+	cmp ah, 'C'
+	je isfruit
 	cmp ah, 'o'
 	je islittledot
 	cmp ah, '0'
@@ -654,16 +654,48 @@ checkdot proc USES eax
 	jmp nodot
 	isbigdot:
 	add score, 5
-	add dotseaten , 5
+	inc dotseaten
 	jmp nodot
 	isghost:
 	mov dead, 1
+	jmp nodot
+	isfruit:
+	add score, 50
+	jmp nodot
 	nodot:
 	;cmp score, 310
 	;jge youWin
 	call updatescore
+	;; spawn fruit
+	call spawnfruits
 	ret
 checkdot endp
+
+spawnfruits proc
+mov dx, 0
+mov ax, score
+mov cx, 100
+div cx
+cmp dx, 0
+je drawfruit
+jmp done
+drawfruit:
+	mov al, 18
+	call setline
+	add esi, 30
+	mov al, 'C'
+	mov [esi], al
+	mov eax, lightred
+	call settextcolor
+	mov al, 'C'
+	mov dh, 18
+	mov dl, 30
+	call gotoxy
+	call writechar
+done:
+	ret
+spawnfruits endp
+
 
 ;---------------------
 ;movpacup
@@ -1117,6 +1149,8 @@ buildYouWin proc
 	call slowdown
 
 	mov eax, 14
+	call randomrange
+	inc eax
 	call settextcolor
 
 	mov eax , 2000
@@ -1148,6 +1182,11 @@ buildYouWin proc
 	mov eax , 500
 	call delay
 
+	mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
+
 	mov dh, 2
 	mov dl, 27
 	call gotoxy
@@ -1174,6 +1213,11 @@ buildYouWin proc
 
 	mov eax , 750
 	call delay
+
+	mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
 
 	mov dh, 7
 	mov dl, 50
@@ -1202,6 +1246,11 @@ buildYouWin proc
 	mov eax , 750
 	call delay
 
+	mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
+
 	mov dh, 20
 	mov dl, 60
 	call gotoxy
@@ -1229,6 +1278,11 @@ buildYouWin proc
 	mov eax , 750
 	call delay
 
+	mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
+
 	mov dh, 19
 	mov dl, 24
 	call gotoxy
@@ -1255,6 +1309,11 @@ buildYouWin proc
 
 	 mov eax , 750
 	 call delay
+
+	 mov eax, 14
+	call randomrange
+	inc eax
+	call settextcolor
 
 	 mov dh, 22
 	 mov dl, 9
@@ -1287,8 +1346,11 @@ buildYouWin proc
 	 mov dh, 18
 	 mov dl, 13
 	 call gotoxy
-	 mov edx, offset playagainmsg
+	 mov edx, offset displayscoremsg
 	 call writestring
+	 mov eax , 0
+	 mov ax, score
+	 call writedec
 
 
 	mov eax, 15
@@ -1364,8 +1426,11 @@ buildGameOver proc
  	mov dh, 20
  	mov dl, 18
  	call gotoxy
- 	mov edx, offset playagainmsg
- 	call writestring
+ 	mov edx, offset displayscoremsg
+	call writestring
+	mov eax ,0
+	mov ax, score
+	call writedec
  
  	mov eax, 15
  	call settextcolor
