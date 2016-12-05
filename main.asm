@@ -488,8 +488,8 @@ pacY db 0
 pacDir db 'd'
 pacCol db 0
 .code
-; this will just put pacman into the board at 12X13 aka lineC at index 14
-	mov pacY, 11
+; this will just put pacman into the board at 24X13 aka line11 at index 14
+	mov pacY, 23
 	;mov esi, offset lineC
 	mov al, PacY
 	Call setline
