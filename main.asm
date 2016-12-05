@@ -234,7 +234,7 @@ gameloop:
 	jne continuelooping
 	call startghost
 continuelooping:
-	cmp dotseaten, 260
+	cmp dotseaten, 224
 	jge youWin
 	cmp dead, 1
 	je LoseLife
@@ -291,7 +291,7 @@ up:
 	;je automove
 	jmp gameloop
 quit:
-
+	jmp youLose
 
 	
 youWin:
@@ -662,13 +662,12 @@ checkdot proc USES eax
 	jmp nodot
 	isbigdot:
 	add score, 5
-	add dotseaten , 5
+	add dotseaten , 1
 	jmp nodot
 	isghost:
 	mov dead, 1
 	isfruit:
-	add score,50
-	add dotseaten, 50
+	add score, 50
 	jmp nodot
 	nodot:
 	;cmp score, 310
