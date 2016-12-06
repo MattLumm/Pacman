@@ -3941,7 +3941,7 @@ spawnghosts endp
 removePac PROC USES eax esi
 mov al , pacY
 call setline
-add esi , pacXa
+add esi , pacX
 mov al , ' '
 mov [esi] , al
 ret
