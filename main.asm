@@ -1,9 +1,9 @@
 TITLE Pac-Man (Matt Lum, Khadija Panirwala, Andrew Tenhagen, Khalil Sheehan-Miles)
 INCLUDE Irvine32.inc
 .data
-; board is 31X28; err now 31X55 
+; board is 31X55 
 ;command console should be height=35(so gotoxy doesn't shift the console)
-;							 width 56+scoredboard and other stuff
+;						   width 56+scoredboard and other stuff
 winning byte 0
 dead byte 0
 score word 1
@@ -178,12 +178,6 @@ goodluckmsg db "GOOD LUCK",0
 displayscoremsg db "Your Score Was: ",0
 losemsg db "You lose!!", 0
 
-
-prevx		BYTE   11
-prevy		BYTE   16
-deltax		SBYTE  0
-deltay		SBYTE  0
-
 ghosttimer db 0
 ghosthold db 0
 ghostpreserve db ' '
@@ -217,9 +211,6 @@ ghostchoice db 0
 
 endgameloop db 0
 
-
-buffer BYTE 1000 DUP(?)
-saveBuffer BYTE 1000 DUP(?)
 temploc byte ?
 
 
@@ -319,31 +310,10 @@ gameend:
 exit
 main ENDP
 
-input proc
-	;this should get the player's input and change pacman's xy coordinates. Doesn't actually change where the picture is tho.
-	ret
-input endp
-
-drawdots proc
-	;put code to draw the dots here
-	ret
-drawdots endp
-
-drawpac proc
-	;put code to draw pacman at a specific xy coordinate here
-	ret
-drawpac endp
-
-updatedots proc
-	;code to remove any dots in the same square as pacman goes here
-	;this should also increment the score
-	ret
-updatedots endp
-
 Drawstart Proc uses eax
-	mov dh, 10
-	mov dl, 57
-	call gotoxy
+mov dh, 10
+mov dl, 57
+call gotoxy
 mov edx, offset line20
 call writestring
 mov eax, 0
@@ -3971,7 +3941,7 @@ spawnghosts endp
 removePac PROC USES eax esi
 mov al , pacY
 call setline
-add esi , pacX
+add esi , pacXa
 mov al , ' '
 mov [esi] , al
 ret
